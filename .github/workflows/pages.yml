@@ -298,6 +298,12 @@ jobs:
         run: |
           MISSING=false
           OPTIONAL_FIRMWARE_SLUGS="guition-esp32-p4-jc8012p4a1 guition-esp32-p4-jc8012p4a1-v2 guition-esp32-p4-jc8012p4a1-v3 guition-esp32-p4-jc1060p470-v2 esp32-p4-86"
+          # Before the first firmware release there are no manifests at all.
+          # Publish the docs anyway; the install buttons report no firmware.
+          if [ -z "$(ls -A firmware 2>/dev/null)" ]; then
+            echo "::warning::No firmware releases published yet — install buttons stay inactive until the first release"
+            exit 0
+          fi
           for SLUG in $DEVICE_SLUGS; do
             MANIFEST="firmware/${SLUG}/manifest.json"
             if [ ! -f "$MANIFEST" ]; then

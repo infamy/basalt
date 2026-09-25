@@ -8,7 +8,7 @@ Basalt lets you put the Home Assistant controls you use every day onto a dedicat
 
 You do not need to write code, edit YAML, or build your own ESPHome setup. Install the firmware from a web browser, connect the screen to WiFi, add it to Home Assistant, then choose what appears on the display from the screen's built-in setup page.
 
-**Documentation and install guide:** [infamy.github.io/basalt](https://infamy.github.io/basalt/)
+**Documentation and install guide:** [basalt.meshmeld.com](https://basalt.meshmeld.com/)
 
 ## About This Fork
 
@@ -56,7 +56,7 @@ If Home Assistant can see it, Basalt is designed to make it easier to put that c
 
 After that, the panel runs on its own. You can still change the layout at any time from a phone, tablet, or computer browser.
 
-Start here: [Install Basalt](https://infamy.github.io/basalt/getting-started/install)
+Start here: [Install Basalt](https://basalt.meshmeld.com/getting-started/install)
 
 ## Supported Screens
 
@@ -70,7 +70,7 @@ Basalt supports several low-cost ESP32 touchscreens. Larger screens give you mor
 | Panel | [AliExpress ~£40](https://www.aliexpress.com/item/1005008789890066.html) | [AliExpress ~£40](https://www.aliexpress.com/item/1005010023056143.html) | [AliExpress ~£24](https://www.aliexpress.com/item/1005009673625472.html) | [AliExpress ~£45](https://www.aliexpress.com/item/1005009476605517.html) | [AliExpress ~£16](https://www.aliexpress.com/item/1005008214679682.html) |
 | 3D mount | [MakerWorld](https://makerworld.com/en/models/2490049-guition-p4-10inch-screen-stand#profileId-2736046) | [MakerWorld](https://makerworld.com/en/models/2387421-guition-esp32p4-jc1060p470-7inch-screen-desk-mount#profileId-2614995) | [MakerWorld](https://makerworld.com/en/models/2982320-desk-stand-for-4-3-inch-jc4880p443-esp32-screen#profileId-3346161) | [MakerWorld](https://makerworld.com/en/models/2720366-waveshare-esp32-p4-smart-86-box-screen-desk-stand#profileId-3013481) | [MakerWorld](https://makerworld.com/en/models/2581572-guition-esp32s3-4848s040-case-stand#profileId-2847301) |
 
-See the [screen guides](https://infamy.github.io/basalt/getting-started/install) for full details on each model.
+See the [screen guides](https://basalt.meshmeld.com/getting-started/install) for full details on each model.
 
 ## Built for Everyday Use
 
@@ -98,9 +98,9 @@ See the [screen guides](https://infamy.github.io/basalt/getting-started/install)
 
 ## Project Links
 
-- [Documentation](https://infamy.github.io/basalt/)
-- [Install guide](https://infamy.github.io/basalt/getting-started/install)
-- [FAQ](https://infamy.github.io/basalt/reference/faq)
+- [Documentation](https://basalt.meshmeld.com/)
+- [Install guide](https://basalt.meshmeld.com/getting-started/install)
+- [FAQ](https://basalt.meshmeld.com/reference/faq)
 - [Report a bug or request a feature](https://github.com/infamy/basalt/issues)
 
 ## Contributor Checks

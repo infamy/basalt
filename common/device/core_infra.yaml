@@ -160,7 +160,7 @@ web_server:
   port: 80
   version: 3
   include_internal: true
-  js_url: https://infamy.github.io/basalt/webserver/www.js?device=${device_slug}&v=${firmware_version}&ui=20260714-shared
+  js_url: https://basalt.meshmeld.com/webserver/www.js?device=${device_slug}&v=${firmware_version}&ui=20260714-shared
   sorting_groups:
     - id: sg_button
       name: "Button Configuration"

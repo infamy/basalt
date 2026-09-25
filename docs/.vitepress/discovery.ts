@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { MarkdownRenderer } from 'vitepress'
 
-export const hostname = 'https://infamy.github.io/basalt/'
+export const hostname = 'https://basalt.meshmeld.com/'
 
 // GitHub Pages cannot configure HTTP redirects. These HTML fallbacks preserve
 // published links while keeping retired pages out of search and the sitemap.

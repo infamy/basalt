@@ -6,9 +6,9 @@ After the initial install, everything is configured through the built-in web pag
 
 ## Quick links
 
-- **Full documentation:** [infamy.github.io/basalt](https://infamy.github.io/basalt/)
-- **Install guide:** [infamy.github.io/basalt/install](https://infamy.github.io/basalt/install)
-- **Web UI guide:** [infamy.github.io/basalt/web-ui](https://infamy.github.io/basalt/web-ui)
+- **Full documentation:** [basalt.meshmeld.com](https://basalt.meshmeld.com/)
+- **Install guide:** [basalt.meshmeld.com/install](https://basalt.meshmeld.com/install)
+- **Web UI guide:** [basalt.meshmeld.com/web-ui](https://basalt.meshmeld.com/web-ui)
 
 ## Features
 

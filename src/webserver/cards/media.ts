@@ -686,7 +686,7 @@ export function registerMediaCardTypes(
                 var playlistInfoText: any = document.createElement("span");
                 playlistInfoText.appendChild(document.createTextNode("Need help finding the media content ID? "));
                 var playlistInfoLink: any = document.createElement("a");
-                playlistInfoLink.href = "https://infamy.github.io/basalt/card-types/media/#media-content";
+                playlistInfoLink.href = "https://basalt.meshmeld.com/card-types/media/#media-content";
                 playlistInfoLink.target = "_blank";
                 playlistInfoLink.rel = "noopener";
                 playlistInfoLink.textContent = "Learn how to configure media content buttons";

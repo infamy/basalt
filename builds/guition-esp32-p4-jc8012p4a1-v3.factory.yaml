@@ -20,5 +20,5 @@ dashboard_import:
 web_server:
   port: 80
   version: 3
-  js_url: https://infamy.github.io/basalt/webserver/www.js?device=${device_slug}&v=${firmware_version}&ui=20260714-shared
+  js_url: https://basalt.meshmeld.com/webserver/www.js?device=${device_slug}&v=${firmware_version}&ui=20260714-shared
   js_include: "../docs/public/webserver/embedded/www.js"

@@ -17,7 +17,7 @@ If saving or importing a backup fails, try opening `http://YOUR-DISPLAY-IP/?espc
 ## The Screen Doesn't Respond to Commands
 
 - If the display shows your Home Assistant devices but nothing happens when you tap controls, such as turning lights on, Home Assistant actions probably need to be enabled for the display.
-- Follow the [Enable Actions](https://infamy.github.io/basalt/getting-started/home-assistant-actions) guide and make sure **Allow the device to perform Home Assistant actions** is turned on.
+- Follow the [Enable Actions](https://basalt.meshmeld.com/getting-started/home-assistant-actions) guide and make sure **Allow the device to perform Home Assistant actions** is turned on.
 
 ## The Install Button Doesn't Detect My Device
 

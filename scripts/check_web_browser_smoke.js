@@ -5852,9 +5852,9 @@ async function assertHostedCompatibility(browser) {
     await page.waitForFunction(() => window.__eventSources?.length > 0);
     await page.evaluate(events => window.__seedEspState(events), seededEvents());
     await page.waitForFunction(() => ["manifest.json", "versions.json"].every(name =>
-      window.__compatRequests.some(item => item.url.startsWith("https://infamy.github.io/basalt/firmware/") && item.url.endsWith(name) && item.status === 200)));
+      window.__compatRequests.some(item => item.url.startsWith("https://basalt.meshmeld.com/firmware/") && item.url.endsWith(name) && item.status === 200)));
     const requests = await page.evaluate(() => window.__compatRequests);
-    for (const request of requests.filter(item => item.url.startsWith("https://infamy.github.io/basalt/firmware/"))) {
+    for (const request of requests.filter(item => item.url.startsWith("https://basalt.meshmeld.com/firmware/"))) {
       assert.equal(request.credentials, "omit", "public metadata must not include browser credentials");
     }
     assert(requests.some(item => item.url.endsWith("/espcontrol/version") && item.credentials === "include"), "device state requests retain authentication");

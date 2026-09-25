@@ -148,7 +148,7 @@ export function createControlsShellFeature(
         });
         var docsLink: any = document.createElement("a");
         docsLink.className = "sp-tab sp-tab-docs";
-        docsLink.href = "https://infamy.github.io/basalt/";
+        docsLink.href = "https://basalt.meshmeld.com/";
         docsLink.target = "_blank";
         docsLink.rel = "noopener";
         docsLink.appendChild(document.createTextNode("Docs "));

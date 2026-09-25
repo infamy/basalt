@@ -152,7 +152,7 @@ export default defineConfig({
   title: 'Basalt',
   description:
     'Touchscreen control panel for Home Assistant on supported ESP32 panels — card-based controls, web configuration, automatic updates.',
-  base: '/basalt/',
+  base: '/',
   lang: 'en-US',
   cleanUrls: true,
   lastUpdated: true,
