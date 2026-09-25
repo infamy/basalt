@@ -1,0 +1,124 @@
+---
+title: "Show Home Assistant Camera Snapshots on Your Touchscreen"
+description:
+  How to show Home Assistant camera and image entities on your Basalt panel.
+---
+
+# Show Home Assistant Camera Snapshots
+
+A Camera card shows a still image from a Home Assistant `camera` or `image` entity. It is useful for doorbells, driveway cameras, room snapshots, weather cameras, or any Home Assistant image entity you want visible on the panel.
+
+Camera cards are display cards. They do not stream live video, pan the camera, or send camera control actions. Tapping the card opens a larger view of the latest loaded image.
+
+::: info Display limits
+ESP32-P4 screens support up to six Camera or Media Cover Art cards. The 4-inch ESP32-S3 supports two shared image cards, allowing one Camera Card alongside one Media Cover Art card.
+
+On ESP32-P4 panels and the 4-inch ESP32-S3, the same `camera.*` and `image.*` entities can also be selected as the **Camera** screensaver action in **Settings > Sleep & Schedule > Screensaver**. That full-screen view is separate from the Camera-card pool, supports **Fit** (the whole image remains visible, with black space where needed) and **Fill** (the image covers the screen and may be cropped), and does not consume a Camera-card slot.
+
+:::
+
+## Setting Up a Camera Card
+
+Before starting, confirm the `camera` or `image` entity shows an image in Home Assistant and that the panel can reach Home Assistant's HTTP or HTTPS endpoint. [Choose a screen](/screens/) with enough shared image slots for your layout.
+
+1. Select a card and change its type to **Camera Card**.
+2. Enter a **Camera Entity**, for example `camera.front_door`.
+3. Enter an optional **Name** below Camera Entity. It appears in the clock bar when the larger view is open. Turn on **Show Label** in Card Settings to show the same name on the card. If Name is blank, Basalt uses the entity name from Home Assistant.
+4. Optionally turn on **Show Icon** and choose an icon. The default icon is **Camera**.
+5. Choose **Expanded Image**:
+   - **Crop to fit** fills the expanded view and may crop the edges.
+   - **Show full image** keeps the whole image visible and may leave empty space around it.
+
+The card accepts both `camera.*` and `image.*` entities, so `image.latest_package_snapshot` works as well as `camera.front_door`.
+
+If your Home Assistant instance uses a custom port, open **Settings > System > Home Assistant Settings** and set **Home Assistant Port** to match it. Camera and image cards use this port when downloading snapshots.
+
+## How It Works on the Panel
+
+- The card asks Home Assistant for the entity picture and downloads it through Home Assistant.
+- The small card requests a snapshot sized for its grid tile, which avoids downloading and processing more pixels than the tile can show.
+- Tapping the card opens the larger view immediately. A recent tile is shown while the larger image loads, when one is available.
+- On the 4-inch S3, closing the larger view keeps its image for up to 15 seconds when memory permits. Reopening within that window reuses it if the source has not changed.
+- Recently loaded images are kept for reuse when you move between pages, so returning to a camera page does not normally start from a blank tile.
+- Camera entities refresh in response to Home Assistant picture or state updates. Image entities refresh when their image-update timestamp changes, even if their URL stays the same; credential changes alone do not reload a current image.
+- If the image cannot be loaded, the card shows **Loading**, **Unavailable**, **Configure**, or **Too many** instead of leaving a blank tile.
+- Camera cards can be used on the main page or inside subpages.
+
+## Refreshing Camera Images
+
+For a `camera.*` entity, open **Refresh Settings > Camera refresh**:
+
+| Mode | Behaviour |
+|---|---|
+| **Off** (default) | Keeps the existing updates from Home Assistant and the image request when opening the camera. |
+| **Periodic** | Refreshes the visible card and expanded image. Choose **5**, **10** (default), or **30 seconds** between completed downloads and the next request. |
+| **On activity** | A trigger refreshes the visible card or expanded image for **30 seconds**, with **5 seconds** between a completed download and the next request. Another activation restarts that period. |
+
+For **On activity**, select a **Trigger entity** such as `binary_sensor.front_door_motion` or `event.front_door_doorbell`. Binary sensors trigger when they change from off to on. Event entities trigger when a new event occurs; every event type on the selected entity counts. Opening while a binary sensor is already on starts one window. Remaining on does not extend it indefinitely.
+
+Periodic and activity refresh run while the camera card is visible on the main page or a subpage. Opening the expanded view continues the same refresh schedule. On activity refreshes for 30 seconds; new activity restarts that window. Leaving the page, covering the card with another modal, or entering the screensaver stops refreshes. Events received while hidden do not queue refreshes for later.
+
+Refreshes do not open the camera, wake the screen, or extend **Home Screen Timeout**. Old doorbell events are not replayed after reconnecting.
+
+The previous image stays visible while the next snapshot loads. Slow downloads never overlap; failures increase the retry delay. A camera integration may return a cached snapshot, so the selected interval does not guarantee a newer picture every time.
+
+`image.*` entities use Home Assistant's image-update timestamp instead of these camera refresh modes. This avoids repeatedly downloading an image that has not been reported as changed.
+
+## Refreshing Cards from Home Assistant
+
+Every ESP32-P4 panel exposes a native ESPHome action for refreshing Camera cards on the page currently shown on the panel. It does not create a button entity and does not refresh Media Cover Art or Camera cards on other pages.
+
+Home Assistant generates the action name from your panel's device name:
+
+```yaml
+action: esphome.<device_name>_refresh_camera_cards
+```
+
+The action rereads each visible Camera card's current `entity_picture` and access token. If the resulting URL has changed, the new image can load immediately. If the URL is unchanged, the existing 30-second refresh guard remains in effect.
+
+For a `local_file` camera, call the panel action after changing the file path:
+
+```yaml
+actions:
+  - action: local_file.update_file_path
+    target:
+      entity_id: camera.doorbell_live
+    data:
+      file_path: /config/www/camera/doorbell-latest.jpg
+  - action: esphome.kitchen_panel_refresh_camera_cards
+```
+
+Replace the camera, file path, and generated ESPHome action with the values from your Home Assistant setup. If a refresh fails, the card and any open larger view show **Unavailable**. Failed downloads retry with increasing delays, up to 30 seconds. An entity reported as unavailable by Home Assistant waits for a state change before downloading again.
+
+## Practical Limits
+
+Camera images use more memory than normal control cards, so Basalt limits how many can be active at once.
+
+ESP32-P4 screens provide **6 shared image slots**. Each Camera card or Media card set to **Cover Art** uses one slot, across the main page and all subpages combined. For example, 4 Camera cards and 2 Media Cover Art cards use all 6 slots.
+
+The 4-inch ESP32-S3 provides **2 shared image slots** across the main page and all subpages. Camera and Media Cover Art cards both use this pool, so one of each can be shown together. Its expanded camera view requests an optimised image up to 320 pixels wide or tall; it remains a still snapshot and does not stream live video.
+
+If you see a **Too many** message or a warning while saving, reduce the number of Camera cards across the main page and subpages.
+
+For best results, use a few important camera snapshots rather than filling a whole page with cameras. Wider or larger card sizes usually make camera images easier to recognise.
+
+Camera performance also depends on the connection between the panel and Home Assistant. The 7-inch JC1060P470 and ESP32-P4 86 Panel support an advanced Ethernet-only firmware option for manual ESPHome installs. A wired connection can give camera snapshots more consistent load times where 2.4 GHz WiFi is busy or weak. See the relevant screen page before switching, because moving between WiFi and Ethernet firmware should be done over USB.
+
+## Troubleshooting
+
+| Problem | What to check |
+|---|---|
+| The card says **Configure** | Add a `camera.*` or `image.*` entity to the card. |
+| The card says **Unavailable** | Check that the entity exists in Home Assistant and has an image available. |
+| The card says **Too many** | Remove or move some Camera cards so the panel has enough image download slots. |
+| The picture is cropped | Change **Expanded Image** to **Show full image**. |
+| The picture does not update often | For a camera, enable periodic refresh or set an activity trigger, and check snapshot freshness in Home Assistant. For an image entity, check that its image-update timestamp changes. |
+| Images remain slow on several cards | Check the panel's WiFi signal and Home Assistant response time. On supported Ethernet models, consider the advanced wired firmware option. |
+
+## Show Photos from Immich
+
+A Home Assistant `image` entity can supply changing photos to a Camera card. The separate [EspControl Immich Companion](/immich/) integration manages photo selection and slideshow controls in Home Assistant; the panel only needs its image entity.
+
+Follow [Connect to Basalt](/immich/display-setup) for Camera card and photo screensaver setup, and check the [installation guide](/immich/installation#installation-status) for the companion's requirements, development status and update instructions.
+
+Configure the integration in Home Assistant, confirm its image entity updates, then select that entity in a Camera card. Do not enter an Immich API key into the panel. The usual snapshot refresh and shared image-slot limits still apply.
