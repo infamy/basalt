@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 
 const repoUrl = 'https://github.com/infamy/basalt'
-const apiUrl = 'https://api.github.com/repos/jtenniswood/espcontrol'
+const apiUrl = 'https://api.github.com/repos/infamy/basalt'
 const stars = ref<number | null>(null)
 
 const starLabel = computed(() => {

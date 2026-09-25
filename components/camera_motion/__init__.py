@@ -16,7 +16,7 @@ from esphome.const import (
     UNIT_PERCENT,
 )
 
-CODEOWNERS = ["@jtenniswood"]
+CODEOWNERS = ["@infamy"]
 DEPENDENCIES = ["i2c"]
 AUTO_LOAD = ["binary_sensor", "sensor", "text_sensor"]
 

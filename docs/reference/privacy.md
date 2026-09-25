@@ -9,8 +9,8 @@ description:
 **Effective date: September 5, 2026**
 
 Basalt is a source-available, non-commercial touchscreen control panel
-project maintained by [jtenniswood](https://github.com/jtenniswood). This
-policy explains what
+project maintained by [infamy](https://github.com/infamy), forked from
+EspControl. This policy explains what
 information may be involved when you use the Basalt documentation website,
 firmware, or built-in web configuration interface.
 
@@ -127,7 +127,7 @@ IDs, webhook credentials, and other settings. This does not remove copies you
 have made elsewhere.
 
 For a question about this policy or a request concerning information directly
-controlled by the project maintainer, contact [jtenniswood through GitHub](https://github.com/jtenniswood).
+controlled by the project maintainer, contact [infamy through GitHub](https://github.com/infamy).
 Please do not include private information in a public issue. Requests about
 GitHub, Home Assistant, or another third-party service should be directed to
 that service.

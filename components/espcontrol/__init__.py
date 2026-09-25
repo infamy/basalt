@@ -13,7 +13,7 @@ from esphome.const import CONF_ID
 from esphome.core import CORE, CoroPriority, coroutine_with_priority
 import os
 
-CODEOWNERS = ["@jtenniswood"]
+CODEOWNERS = ["@infamy"]
 AUTO_LOAD = ["mdns", "json", "socket"]
 
 CONF_ACTION_RESPONSES = "action_responses"

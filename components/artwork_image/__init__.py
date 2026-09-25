@@ -41,7 +41,7 @@ except ImportError:
 
 AUTO_LOAD = ["image", "socket"]
 DEPENDENCIES = ["display", "http_request"]
-CODEOWNERS = ["@jtenniswood"]
+CODEOWNERS = ["@infamy"]
 MULTI_CONF = True
 
 CONF_ON_DOWNLOAD_FINISHED = "on_download_finished"

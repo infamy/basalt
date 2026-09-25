@@ -208,8 +208,8 @@ export default defineConfig({
             url: hostname,
             author: {
               '@type': 'Person',
-              name: 'jtenniswood',
-              url: 'https://github.com/jtenniswood',
+              name: 'infamy',
+              url: 'https://github.com/infamy',
             },
             offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
           },
@@ -261,7 +261,7 @@ export default defineConfig({
         description,
         url: canonicalUrl,
         isPartOf: { '@id': `${hostname}#website` },
-        author: { '@type': 'Person', name: 'jtenniswood', url: 'https://github.com/jtenniswood' },
+        author: { '@type': 'Person', name: 'infamy', url: 'https://github.com/infamy' },
       }
       if (pageData.lastUpdated) {
         articleSchema.dateModified = new Date(pageData.lastUpdated).toISOString()
