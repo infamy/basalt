@@ -18,8 +18,12 @@
     },
     "firmware": {
       "package": {
+        "substitutions": {
+          "speaker_amplifier_pin": "\"GPIO11\""
+        },
         "extraPackages": {
-          "camera_motion": "!include ../../common/addon/camera_motion.yaml"
+          "camera_motion": "!include ../../common/addon/camera_motion.yaml",
+          "speaker_output": "!include ../../common/device/speaker_output_p4.yaml"
         }
       }
     }
