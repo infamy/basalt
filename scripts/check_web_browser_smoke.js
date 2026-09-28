@@ -432,7 +432,7 @@ async function installRoutes(context, slug, options = {}) {
       await route.fulfill({ status: 204, contentType: "text/plain", body: "" });
       return;
     }
-    if (requestUrl.hostname === "jtenniswood.github.io") {
+    if (requestUrl.hostname === "basalt.meshmeld.com") {
       if (requestUrl.pathname.endsWith("/manifest.json")) {
         await route.fulfill({
           status: 200,
@@ -2224,6 +2224,7 @@ async function assertEmptyCellSettings(page, posts, label) {
   );
   const switchTypeOption = page.getByRole("button", {
     name: "Switch card type",
+    exact: true,
   });
   assert(
     await switchTypeOption.isVisible(),
@@ -2336,7 +2337,7 @@ async function assertEmptyCellSettings(page, posts, label) {
 
   await page.locator(`.sp-main [data-pos="${pos}"]`).click();
   await page.waitForSelector(".sp-settings-overlay.sp-visible");
-  await page.getByRole("button", { name: "Switch card type" }).click();
+  await page.getByRole("button", { name: "Switch card type", exact: true }).click();
   assert.strictEqual(
     await page.locator(".sp-settings-modal .sp-section-title").textContent(),
     "Switch",
@@ -2490,7 +2491,7 @@ async function assertEmptyCellSettings(page, posts, label) {
 
   await page.locator(`.sp-main [data-pos="${pos}"]`).click();
   await page.waitForSelector(".sp-settings-overlay.sp-visible");
-  await page.getByRole("button", { name: "Switch card type" }).click();
+  await page.getByRole("button", { name: "Switch card type", exact: true }).click();
   await page
     .locator(".sp-settings-modal .sp-disclosure")
     .filter({ hasText: "Card Settings" })
@@ -2729,9 +2730,10 @@ async function assertAllCardSettingsGrouped(page, posts, label) {
         await typeSelect.selectOption(typeValue);
         await assertGrouped(`${cardOption.label} / ${typeValue || "default"}`);
         if (cardOption.value === "weather" && typeValue) {
+          // Daily Forecast has no extra settings of its own to group.
           assert.strictEqual(
             await page.locator(".sp-settings-modal .sp-panel > .sp-disclosure").count(),
-            1,
+            typeValue === "days" ? 0 : 1,
             `${label}: Weather forecasts should group their extra settings`,
           );
         }
