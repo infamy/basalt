@@ -52,17 +52,13 @@ WEB_BUNDLE_RETENTION = ROOT / "docs" / "public" / "webserver" / "bundle-retentio
 # matching generated icon glyphs.
 WEB_ASSET_SUPPORTED_FIRMWARE_VERSIONS = (
     "dev",
-    "v2.10.0",
-    "v2.9.1",
-    "v2.9.0",
-    "v2.8.6",
-    "v2.8.4",
+    "2026.9.0",
 )
 WEB_ASSET_CURRENT_FIRMWARE_VERSION = None
 # Local fallback for builds that do not have the currently published manifest.
 # Release and Pages workflows pass --legacy-web-manifest so this rotates with
 # the published release instead of remaining pinned here.
-WEB_ASSET_LEGACY_BUNDLE_ID = "42f3fd87eb8cbfab59943a7643a19416ded29eddb8608498ada20e95b416fd49"
+WEB_ASSET_LEGACY_BUNDLE_ID = "e704c735b62e89dc96095ee2110cd6ce21afc26c776d4dc7f1072b7e1ff0eeea"
 WEB_ASSET_LEGACY_BUNDLE_PATH = f"bundles/{WEB_ASSET_LEGACY_BUNDLE_ID}/www.js"
 
 # Fixed editor controls use a few MDI glyphs that are not selectable Product
