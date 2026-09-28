@@ -28,7 +28,7 @@ from urllib.parse import urljoin
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MANIFEST = ROOT / "devices" / "manifest.json"
-STABLE_VERSION_RE = re.compile(r"^v[0-9]+(\.[0-9]+){2}$")
+STABLE_VERSION_RE = re.compile(r"^[0-9]+(\.[0-9]+){2}$")
 MD5_RE = re.compile(r"^[0-9a-f]{32}$", re.IGNORECASE)
 RECOVERY_REQUIRED_FROM = (2, 6, 4)
 
@@ -171,7 +171,7 @@ def verify_public_slug(base_url: str, slug: str, beta: bool = False) -> str:
 def stable_version_tuple(version: str) -> tuple[int, int, int]:
     if not STABLE_VERSION_RE.fullmatch(version):
         raise PublicFirmwareError(f"invalid stable firmware version {version!r}")
-    major, minor, patch = version.removeprefix("v").split(".")
+    major, minor, patch = version.split(".")
     return int(major), int(minor), int(patch)
 
 

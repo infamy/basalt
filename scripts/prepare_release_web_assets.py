@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD_SCRIPT = ROOT / "scripts" / "build.py"
-RELEASE_TAG_RE = re.compile(r"^v\d+\.\d+\.\d+(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?$")
+RELEASE_TAG_RE = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?$")
 VERSION_LIST_RE = re.compile(
     r"(?ms)^(WEB_ASSET_SUPPORTED_FIRMWARE_VERSIONS = \(\n)(.*?)(^\))"
 )
@@ -79,7 +79,7 @@ def supported_versions(tag: str, releases: list[dict]) -> list[str]:
 def prepare(path: Path, tag: str, releases: list[dict], set_current_version: bool = True) -> bool:
     if not RELEASE_TAG_RE.fullmatch(tag):
         raise PrepareReleaseWebAssetsError(
-            f"{tag!r} is not a full release tag such as v1.2.3 or v1.2.3-beta.1"
+            f"{tag!r} is not a full release tag such as 2026.9.0 or 2026.9.0-beta.1"
         )
     source = path.read_text(encoding="utf-8")
     match = VERSION_LIST_RE.search(source)
