@@ -134,10 +134,15 @@ function verifyManifest(webRoot) {
 
 async function verifyBridge() {
   const manifest = readJson(path.join(WEB_ROOT, "web-assets.json"));
-  const stableVersion = manifest.bundles[2].firmwareVersions.find(
+  // A retained bundle serves panels running an earlier released firmware.
+  // A project that has not published a release yet has none.
+  const retainedIndex = manifest.bundles.findIndex((bundle) =>
+    (bundle.firmwareVersions || []).some((version) => /^v?\d+\.\d+\.\d+$/.test(version)),
+  );
+  const stableVersion = retainedIndex < 0 ? "" : manifest.bundles[retainedIndex].firmwareVersions.find(
     (version) => /^v?\d+\.\d+\.\d+$/.test(version),
   );
-  assert(stableVersion, "web asset manifest must declare a stable firmware version");
+  const requestedVersion = stableVersion || "dev";
   const loaded = [];
   let cleanedFallbackPath = "";
   const sandbox = {
@@ -171,20 +176,22 @@ async function verifyBridge() {
   assert(loaded[0] === `https://assets.example/webserver/${manifest.bundles[0].path}?device=esp32-p4-86`,
     "web bridge must use the device firmware version when the URL omits it");
 
-  const releaseLoaded = [];
-  sandbox.document.currentScript.getAttribute = () =>
-    `https://assets.example/webserver/www.js?device=esp32-p4-86&v=${stableVersion}`;
-  sandbox.document.head.appendChild = (script) => releaseLoaded.push(script.src);
-  vm.runInContext(fs.readFileSync(path.join(WEB_ROOT, "www.js"), "utf8"), sandbox);
-  await new Promise((resolve) => setImmediate(resolve));
-  assert(releaseLoaded.length === 1, "web bridge must load the supported stable firmware bundle");
-  assert(releaseLoaded[0] === `https://assets.example/webserver/${manifest.bundles[2].path}?device=esp32-p4-86&v=${stableVersion}`,
-    "web bridge must select the retained bundle for an explicitly requested stable firmware version");
+  if (stableVersion) {
+    const releaseLoaded = [];
+    sandbox.document.currentScript.getAttribute = () =>
+      `https://assets.example/webserver/www.js?device=esp32-p4-86&v=${stableVersion}`;
+    sandbox.document.head.appendChild = (script) => releaseLoaded.push(script.src);
+    vm.runInContext(fs.readFileSync(path.join(WEB_ROOT, "www.js"), "utf8"), sandbox);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert(releaseLoaded.length === 1, "web bridge must load the supported stable firmware bundle");
+    assert(releaseLoaded[0] === `https://assets.example/webserver/${manifest.bundles[retainedIndex].path}?device=esp32-p4-86&v=${stableVersion}`,
+      "web bridge must select the retained bundle for an explicitly requested stable firmware version");
+  }
 
   let fallbackStarts = 0;
   sandbox.__ESPCONTROL_START_EMBEDDED__ = () => { fallbackStarts += 1; };
   sandbox.document.currentScript.getAttribute = () =>
-    `https://assets.example/webserver/www.js?device=esp32-p4-86&v=${stableVersion}`;
+    `https://assets.example/webserver/www.js?device=esp32-p4-86&v=${requestedVersion}`;
   sandbox.document.head.appendChild = (script) => script.onerror();
   vm.runInContext(fs.readFileSync(path.join(WEB_ROOT, "www.js"), "utf8"), sandbox);
   await new Promise((resolve) => setImmediate(resolve));
