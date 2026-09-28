@@ -318,6 +318,13 @@ jobs:
           done
           if [ "$MISSING" = true ]; then exit 1; fi
 
+      - name: Keep the firmware artifact present before the first release
+        run: |
+          mkdir -p firmware
+          if [ -z "$(ls -A firmware)" ]; then
+            echo "No firmware releases published yet." > firmware/.empty
+          fi
+
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v7
         with:
