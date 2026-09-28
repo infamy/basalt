@@ -18,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REPO_URL = "https://github.com/infamy/basalt"
-STABLE_TAG_RE = re.compile(r"^v\d+\.\d+\.\d+$")
+STABLE_TAG_RE = re.compile(r"^\d+\.\d+\.\d+$")
 PR_RE = re.compile(r"\(#(?P<number>\d+)\)")
 
 
@@ -226,7 +226,7 @@ def remote_url() -> str:
 
 
 def stable_tags() -> list[str]:
-    tags = run_git(["tag", "--list", "v*", "--sort=version:refname"]).splitlines()
+    tags = run_git(["tag", "--list", "--sort=version:refname"]).splitlines()
     return [tag for tag in tags if STABLE_TAG_RE.match(tag)]
 
 
@@ -595,7 +595,7 @@ def build_changelog(version: str, from_ref: str | None, to_ref: str, repo_url: s
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("version", help="Release version to show in the changelog, for example v1.12.0")
+    parser.add_argument("version", help="Release version to show in the changelog, for example 2026.9.0")
     parser.add_argument("--from", dest="from_ref", help="Previous release tag or commit. Defaults to the previous stable tag.")
     parser.add_argument("--to", dest="to_ref", help="Release target ref. Defaults to the tag if it exists, otherwise HEAD.")
     parser.add_argument("--repo-url", default=None, help="Repository URL for commit and comparison links.")
