@@ -457,7 +457,6 @@ jobs:
         run: cp -a release-web-assets dist/release-web-assets
 
       - name: Generate release notes
-        env:
         run: python3 scripts/release_changelog.py "${RELEASE_TAG}" --output dist/release-notes.md
 
       - name: Record release source provenance
