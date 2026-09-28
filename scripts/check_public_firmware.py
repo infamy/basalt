@@ -270,7 +270,7 @@ def write_manifest(directory: Path, slug: str, include_factory: bool = True) -> 
         parts.append({"path": f"{slug}.factory.bin", "offset": 0})
     (directory / "manifest.json").write_text(json.dumps({
         "name": "Espcontrol",
-        "version": "v1.2.3",
+        "version": "2026.9.0",
         "home_assistant_domain": "esphome",
         "builds": [{
             "chipFamily": "ESP32-S3",
@@ -278,14 +278,14 @@ def write_manifest(directory: Path, slug: str, include_factory: bool = True) -> 
             "ota": {
                 "path": f"{slug}.ota.bin",
                 "md5": hashlib.md5(ota_bytes).hexdigest(),
-                "release_url": "https://example.invalid/releases/v1.2.3",
+                "release_url": "https://example.invalid/releases/2026.9.0",
             },
         }],
     }), encoding="utf-8")
 
 
 def write_versions_index(directory: Path, slug: str) -> None:
-    old_dir = directory / "versions" / "v1.2.2"
+    old_dir = directory / "versions" / "2026.8.0"
     old_dir.mkdir(parents=True, exist_ok=True)
     old_bytes = b"old-ota"
     (old_dir / f"{slug}.ota.bin").write_bytes(old_bytes)
@@ -293,18 +293,18 @@ def write_versions_index(directory: Path, slug: str) -> None:
         "device": slug,
         "versions": [
             {
-                "version": "v1.2.3",
-                "release_url": "https://example.invalid/releases/v1.2.3",
+                "version": "2026.9.0",
+                "release_url": "https://example.invalid/releases/2026.9.0",
                 "ota": {
                     "path": f"{slug}.ota.bin",
                     "md5": hashlib.md5(b"ota").hexdigest(),
                 },
             },
             {
-                "version": "v1.2.2",
-                "release_url": "https://example.invalid/releases/v1.2.2",
+                "version": "2026.8.0",
+                "release_url": "https://example.invalid/releases/2026.8.0",
                 "ota": {
-                    "path": f"versions/v1.2.2/{slug}.ota.bin",
+                    "path": f"versions/2026.8.0/{slug}.ota.bin",
                     "md5": hashlib.md5(old_bytes).hexdigest(),
                 },
             },
@@ -317,7 +317,7 @@ def write_recovery_manifest(directory: Path, slug: str) -> None:
     (directory / f"{slug}.recovery.bin").write_bytes(b"recovery")
     (directory / "manifest.json").write_text(json.dumps({
         "name": "Espcontrol",
-        "version": "v1.2.3",
+        "version": "2026.9.0",
         "home_assistant_domain": "esphome",
         "new_install_prompt_erase": True,
         "builds": [{
@@ -354,7 +354,7 @@ def self_test() -> None:
                 )
             if "optional slug optional-panel" not in warning_output.getvalue():
                 raise PublicFirmwareError("self-test expected missing optional firmware to warn")
-            verify_recovery_slug(url, "required-panel", "v1.2.3")
+            verify_recovery_slug(url, "required-panel", "2026.9.0")
             try:
                 verify_public_firmware(url, ["missing-panel"], set(), set(), 1, 0)
             except PublicFirmwareError:
