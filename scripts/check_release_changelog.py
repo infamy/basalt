@@ -43,7 +43,7 @@ def with_temp_repo() -> tuple[TemporaryDirectory[str], Path]:
     git(repo, "remote", "add", "origin", "https://github.com/example/espcontrol.git")
     write(repo, "README.md", "# Demo\n")
     commit(repo, "Initial release")
-    git(repo, "tag", "v1.0.0")
+    git(repo, "tag", "2026.8.0")
     return tmp, repo
 
 
@@ -56,8 +56,8 @@ def test_future_release_uses_latest_tag() -> None:
         commit(repo, "Add light brightness card type (#12)")
         full_hash = git(repo, "rev-parse", "HEAD")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "HEAD"),
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "HEAD"),
             "HEAD",
             release_changelog.remote_url(),
         )
@@ -65,7 +65,7 @@ def test_future_release_uses_latest_tag() -> None:
         release_changelog.ROOT = original_root
         tmp.cleanup()
 
-    assert "Changes since `v1.0.0`." in text
+    assert "Changes since `2026.8.0`." in text
     assert "## What changed?" in text
     assert "- User-facing features: 1 change. Notable: Add light brightness card type." in text
     assert "## Update guidance" in text
@@ -74,8 +74,8 @@ def test_future_release_uses_latest_tag() -> None:
     assert "Add light brightness card type" in text
     assert "[#12](https://github.com/example/espcontrol/pull/12)" in text
     assert "1 user-facing change is included in this release." in text
-    assert "Release range: `v1.0.0` to `" in text
-    assert f"[Full comparison](https://github.com/example/espcontrol/compare/v1.0.0...{full_hash})" in text
+    assert "Release range: `2026.8.0` to `" in text
+    assert f"[Full comparison](https://github.com/example/espcontrol/compare/2026.8.0...{full_hash})" in text
 
 
 def test_existing_tag_uses_previous_tag() -> None:
@@ -85,20 +85,20 @@ def test_existing_tag_uses_previous_tag() -> None:
         release_changelog.ROOT = repo
         write(repo, "components/espcontrol/button_grid.h", "// firmware\n")
         commit(repo, "Fix relay card behavior")
-        git(repo, "tag", "v1.1.0")
+        git(repo, "tag", "2026.9.0")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "v1.1.0"),
-            "v1.1.0",
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "2026.9.0"),
+            "2026.9.0",
             None,
         )
     finally:
         release_changelog.ROOT = original_root
         tmp.cleanup()
 
-    assert "Changes since `v1.0.0`." in text
+    assert "Changes since `2026.8.0`." in text
     assert "Affected devices: All supported displays may be affected" in text
-    assert "Release range: `v1.0.0` to `v1.1.0`." in text
+    assert "Release range: `2026.8.0` to `2026.9.0`." in text
     assert "### User-facing bug fixes" in text
     assert "Fix relay card behavior" in text
 
@@ -111,8 +111,8 @@ def test_device_build_change_reports_specific_device() -> None:
         write(repo, "builds/guition-esp32-p4-jc1060p470.yaml", "substitutions:\n  name: test\n")
         commit(repo, "Fix 7inch P4 display build")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "HEAD"),
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "HEAD"),
             "HEAD",
             None,
         )
@@ -132,8 +132,8 @@ def test_shared_web_bundle_change_reports_all_devices() -> None:
         write(repo, "docs/public/webserver/www.js", "console.log('web');\n")
         commit(repo, "Update shared setup page")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "HEAD"),
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "HEAD"),
             "HEAD",
             None,
         )
@@ -152,8 +152,8 @@ def test_shared_display_assets_are_user_facing() -> None:
         write(repo, "common/assets/icon_glyphs.yaml", "thermostat: '\\ue000'\n")
         commit(repo, "Add thermostat icon glyphs")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "HEAD"),
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "HEAD"),
             "HEAD",
             None,
         )
@@ -174,8 +174,8 @@ def test_device_manifest_change_affects_all_devices() -> None:
         write(repo, "devices/manifest.json", '{"devices":[]}\n')
         commit(repo, "Update supported display manifest")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "HEAD"),
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "HEAD"),
             "HEAD",
             None,
         )
@@ -195,8 +195,8 @@ def test_public_device_profile_change_is_user_facing() -> None:
         write(repo, "docs/public/device-profiles.json", '{"devices":[]}\n')
         commit(repo, "Update install device profiles")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "HEAD"),
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "HEAD"),
             "HEAD",
             None,
         )
@@ -217,8 +217,8 @@ def test_docs_prefixed_public_device_profile_change_is_user_facing() -> None:
         write(repo, "docs/public/device-profiles.json", '{"devices":[]}\n')
         commit(repo, "docs: update device profiles")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "HEAD"),
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "HEAD"),
             "HEAD",
             None,
         )
@@ -239,8 +239,8 @@ def test_public_release_helper_changes_are_user_facing() -> None:
         write(repo, "scripts/firmware_release.py", "# firmware release metadata\n")
         commit(repo, "Fix firmware release manifest URLs")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "HEAD"),
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "HEAD"),
             "HEAD",
             None,
         )
@@ -263,8 +263,8 @@ def test_internal_changes_are_not_listed_as_user_facing() -> None:
         write(repo, "scripts/check_release_changelog.py", "# test\n")
         commit(repo, "Update release changelog tests")
         text = release_changelog.build_changelog(
-            "v1.1.0",
-            release_changelog.default_from_ref("v1.1.0", "HEAD"),
+            "2026.9.0",
+            release_changelog.default_from_ref("2026.9.0", "HEAD"),
             "HEAD",
             None,
         )
