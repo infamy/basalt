@@ -29,7 +29,6 @@ ESPHOME_ENV = Path(__file__).resolve().parents[1] / ".github" / "esphome.env"
 RELEASE_WORKFLOW = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "release.yml"
 PAGES_WORKFLOW = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "pages.yml"
 FIRMWARE_COMPILE_WORKFLOW = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "firmware-compile.yml"
-NIGHTLY_FIRMWARE_WORKFLOW = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "nightly-firmware.yml"
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE_CONTRACT = ROOT / "product" / "release_contract.json"
 WEB_MANIFEST = ROOT / "docs" / "public" / "webserver" / "web-assets.json"
@@ -195,7 +194,7 @@ def test_device_matrix_sparse_checkouts_include_product_model() -> None:
         "product/v2/translations/strings.*.txt",
         "product/v2/product_compatibility.json",
     )
-    for workflow_path in (FIRMWARE_COMPILE_WORKFLOW, NIGHTLY_FIRMWARE_WORKFLOW):
+    for workflow_path in (FIRMWARE_COMPILE_WORKFLOW,):
         workflow = workflow_path.read_text(encoding="utf-8")
         for required_path in required_paths:
             assert required_path in workflow, (

@@ -1,10 +1,13 @@
 name: Build Release
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       release_tag:
-        description: Existing draft release tag to build, verify, and publish
+        description: Release tag to build, verify, and publish
         required: true
         type: string
 
@@ -12,12 +15,13 @@ permissions:
   contents: write
 
 env:
+  RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   ESPCONTROL_NPM_CACHE_MAX_MB: 512
   ESPCONTROL_DOCKER_BUILD_CACHE_KEEP: 2GB
 
 concurrency:
-  group: release-${{ inputs.release_tag }}
+  group: release-${{ inputs.release_tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -34,17 +38,31 @@ jobs:
 
       - uses: actions/checkout@v7.0.1
         with:
-          ref: ${{ inputs.release_tag }}
+          ref: ${{ env.RELEASE_TAG }}
       - run: git sparse-checkout disable || true
 
       - name: Pin release source revision
         id: source
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
+      - name: Create draft release for the tag
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release ${RELEASE_TAG} already exists; building it."
+          else
+            gh release create "${RELEASE_TAG}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --draft \
+              --title "${RELEASE_TAG}" \
+              --notes "Firmware build in progress."
+          fi
+
       - name: Require private draft release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
         run: >-
           python3 scripts/firmware_release.py verify-draft
           --version "${RELEASE_TAG}"
@@ -101,7 +119,6 @@ jobs:
       - name: Prepare release web assets
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           python3 scripts/prepare_release_web_assets.py "${RELEASE_TAG}"
 
@@ -295,7 +312,7 @@ jobs:
       - name: Compile firmware
         working-directory: espcontrol-${{ matrix.slug }}
         env:
-          VERSION: ${{ inputs.release_tag }}
+          VERSION: ${{ env.RELEASE_TAG }}
         run: |
           SOURCE_DIR="${PWD}"
           compile_config() {
@@ -351,7 +368,7 @@ jobs:
           cp "${BUILD_DIR}/firmware.factory.bin" dist/firmware/${{ matrix.slug }}.factory.bin
           cp "${BUILD_DIR}/firmware.ota.bin" dist/firmware/${{ matrix.slug }}.ota.bin
 
-          VERSION="${{ inputs.release_tag }}"
+          VERSION="${{ env.RELEASE_TAG }}"
           python3 espcontrol-${{ matrix.slug }}/scripts/firmware_release.py manifest \
             --slug "${{ matrix.slug }}" \
             --chip "${{ matrix.chip }}" \
@@ -441,12 +458,10 @@ jobs:
 
       - name: Generate release notes
         env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
         run: python3 scripts/release_changelog.py "${RELEASE_TAG}" --output dist/release-notes.md
 
       - name: Record release source provenance
         env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
           SOURCE_SHA: ${{ needs.preflight.outputs.source_sha }}
         run: |
           mapfile -t DEVICE_SLUGS < <(python3 scripts/device_matrix.py release | jq -r '.include[].slug')
@@ -463,7 +478,6 @@ jobs:
 
       - name: Verify complete distribution
         env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
           SOURCE_SHA: ${{ needs.preflight.outputs.source_sha }}
         run: |
           mapfile -t DEVICE_SLUGS < <(python3 scripts/device_matrix.py release | jq -r '.include[].slug')
@@ -515,7 +529,6 @@ jobs:
       - name: Upload, verify, and publish draft release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           mapfile -t DEVICE_SLUGS < <(python3 scripts/device_matrix.py release | jq -r '.include[].slug')
           mapfile -t RECOVERY_SLUGS < <(python3 scripts/device_matrix.py release | jq -r '.include[] | select(.recovery) | .slug')
