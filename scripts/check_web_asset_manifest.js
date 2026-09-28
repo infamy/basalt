@@ -135,7 +135,7 @@ function verifyManifest(webRoot) {
 async function verifyBridge() {
   const manifest = readJson(path.join(WEB_ROOT, "web-assets.json"));
   const stableVersion = manifest.bundles[2].firmwareVersions.find(
-    (version) => /^v\d+\.\d+\.\d+$/.test(version),
+    (version) => /^v?\d+\.\d+\.\d+$/.test(version),
   );
   assert(stableVersion, "web asset manifest must declare a stable firmware version");
   const loaded = [];

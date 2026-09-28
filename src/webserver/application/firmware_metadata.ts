@@ -5,7 +5,10 @@ export const FIRMWARE_PUBLIC_MANIFEST_BASE = "https://basalt.meshmeld.com/firmwa
 
 export function isSpecificFirmwareVersion(this: any, version?: any) {
         version = String(version == null ? "" : version).trim();
-        return /^v[0-9]+(\.[0-9]+){2}([-+][0-9A-Za-z.-]+)?$/i.test(version);
+        // 0.0.0 is the placeholder a local build carries before a release
+        // version is injected, so it is not a specific version.
+        if (version === "0.0.0") return false;
+        return /^v?[0-9]+(\.[0-9]+){2}([-+][0-9A-Za-z.-]+)?$/i.test(version);
     }
 export function firmwareVersionFromMetadata(this: any, data?: any) {
         if (!data)
