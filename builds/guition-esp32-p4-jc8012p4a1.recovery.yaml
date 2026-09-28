@@ -1,3 +1,9 @@
 packages:
   factory: !include guition-esp32-p4-jc8012p4a1.factory.yaml
   c6_recovery: !include ../common/device/esp32_c6_recovery.yaml
+
+# Recovery images exist to reflash the ESP32-C6 over USB, so they leave out the
+# embedded web editor (about 1.1 MB) that factory images bundle. The setup page
+# still loads from the hosted URL when the panel has a working network.
+web_server:
+  js_include: !remove
