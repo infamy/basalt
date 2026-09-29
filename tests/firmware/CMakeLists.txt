@@ -541,3 +541,6 @@ target_compile_features(dual_switch_layout_test PRIVATE cxx_std_17)
 target_compile_options(dual_switch_layout_test PRIVATE -Wall -Wextra -Werror)
 target_include_directories(dual_switch_layout_test PRIVATE ../../components/espcontrol)
 add_test(NAME dual_switch_layout_test COMMAND dual_switch_layout_test)
+
+add_test(NAME clock_screensaver_time_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/clock_screensaver_time_test.py)
