@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { MarkdownRenderer } from 'vitepress'
 
-export const hostname = 'https://basalt.meshmeld.com/'
+export const hostname = 'https://jtenniswood.github.io/espcontrol/'
 
 // GitHub Pages cannot configure HTTP redirects. These HTML fallbacks preserve
 // published links while keeping retired pages out of search and the sitemap.
@@ -11,7 +11,7 @@ export const redirects: Record<string, string> = {
   'card-types/weather-forecast': `${hostname}card-types/weather#temperatures-tomorrow`,
   'generated/cards/capabilities': `${hostname}reference/card-capabilities`,
   'generated/cards/runtime-coverage':
-    'https://github.com/infamy/basalt/blob/main/dev-docs/generated/card-runtime-coverage.md',
+    `${hostname}reference/card-capabilities`,
   'generated/screens/4848s040-grid': `${hostname}screens/4848s040#card-grid`,
   'generated/screens/4848s040-install': `${hostname}screens/4848s040#install`,
   'generated/screens/jc1060p470-grid': `${hostname}screens/jc1060p470#card-grid`,
@@ -36,7 +36,7 @@ export async function writeRedirects(outDir: string) {
     await mkdir(join(file, '..'), { recursive: true })
     await writeFile(file, `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Page moved | Basalt</title>
+<title>Page moved | EspControl</title>
 <meta name="robots" content="noindex,follow">
 <link rel="canonical" href="${destination.split('#')[0]}">
 <meta http-equiv="refresh" content="0; url=${destination}">
