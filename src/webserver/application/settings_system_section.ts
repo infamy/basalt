@@ -1,5 +1,6 @@
 import { buildResetSettings } from "./settings_reset_section";
 import { state } from "../state/app_instance";
+import type { HaEntityDirectoryFeature } from "./ha_entity_directory";
 import { normalizeHomeAssistantArtworkEndpointMode, normalizeHomeAssistantArtworkPort, normalizeHomeAssistantArtworkProtocol } from "../model/settings";
 import type { UiRuntimeState } from "./state";
 import {
@@ -24,6 +25,7 @@ export interface SettingsSystemSectionActions {
     buildIdentityCard?(): HTMLElement;
     exportBackup(): void;
     importBackup(): void;
+    haEntityDirectory: HaEntityDirectoryFeature;
 }
 
 export interface SettingsSystemSectionFeature {
@@ -454,6 +456,46 @@ export function createSettingsSystemSectionFeature(
             haHostInput.disabled = !manualEndpoint;
         }
         syncHomeAssistantEndpointFields();
+        // Optional entity autocomplete: with a long-lived token saved in this
+        // browser, entity fields suggest every Home Assistant entity.
+        var haDirectorySaved: any = actions.haEntityDirectory.settings();
+        var haDirUrlField: any = document.createElement("div");
+        haDirUrlField.className = "sp-field";
+        haDirUrlField.appendChild(fieldLabel("Home Assistant URL (entity autocomplete)", "sp-set-ha-directory-url"));
+        var haDirUrlInput: any = document.createElement("input");
+        haDirUrlInput.className = "sp-input";
+        haDirUrlInput.id = "sp-set-ha-directory-url";
+        haDirUrlInput.value = haDirectorySaved.url;
+        haDirUrlInput.placeholder = "http://homeassistant.local:8123";
+        haDirUrlField.appendChild(haDirUrlInput);
+        homeAssistantSettingsBody.appendChild(haDirUrlField);
+        var haDirTokenField: any = document.createElement("div");
+        haDirTokenField.className = "sp-field";
+        haDirTokenField.appendChild(fieldLabel("Access Token (entity autocomplete)", "sp-set-ha-directory-token"));
+        var haDirTokenInput: any = document.createElement("input");
+        haDirTokenInput.className = "sp-input";
+        haDirTokenInput.id = "sp-set-ha-directory-token";
+        haDirTokenInput.type = "password";
+        haDirTokenInput.autocomplete = "off";
+        haDirTokenInput.value = haDirectorySaved.token;
+        haDirTokenInput.placeholder = "Long-lived access token";
+        haDirTokenField.appendChild(haDirTokenInput);
+        homeAssistantSettingsBody.appendChild(haDirTokenField);
+        var haDirHint: any = document.createElement("div");
+        haDirHint.className = "sp-fw-status";
+        haDirHint.textContent = "Optional: suggests your Home Assistant entities while typing. Stored in this browser only - never on the panel.";
+        homeAssistantSettingsBody.appendChild(haDirHint);
+        var haDirStatus: any = document.createElement("div");
+        haDirStatus.className = "sp-fw-status";
+        homeAssistantSettingsBody.appendChild(haDirStatus);
+        els.haDirectoryStatus = haDirStatus;
+        actions.haEntityDirectory.renderStatus();
+        function saveHaDirectoryInputs(this: any) {
+            actions.haEntityDirectory.save(haDirUrlInput.value, haDirTokenInput.value);
+            actions.haEntityDirectory.refresh();
+        }
+        haDirUrlInput.addEventListener("change", saveHaDirectoryInputs);
+        haDirTokenInput.addEventListener("change", saveHaDirectoryInputs);
         var homeAssistantSettingsCard: any = makeCollapsibleCard("Home Assistant Settings", homeAssistantSettingsBody, true);
         return {
             identityCard: actions.buildIdentityCard?.(),

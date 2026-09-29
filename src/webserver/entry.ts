@@ -22,6 +22,7 @@ import { createScreenScheduleStateFeature } from "./application/screen_schedule_
 import { createAppearanceFeature } from "./application/appearance_state";
 import { createFirmwareVersionFeature } from "./application/firmware_version_state";
 import { createEntityStateFeature } from "./application/entity_state";
+import { createHaEntityDirectoryFeature } from "./application/ha_entity_directory";
 import { createClockBarFeature, type ClockBarFeature } from "./application/clock_bar_state";
 import { createFirmwareUpdateFeature, type FirmwareUpdateFeature } from "./application/firmware_update_state";
 import { createScreensaverTimeoutFeature } from "./application/screensaver_timeout";
@@ -331,6 +332,7 @@ function composeApplicationContext(): ApplicationContext {
   let confirmationOptions: ReturnType<typeof createConfigConfirmationOptionsFeature>;
   let clockBarState: ClockBarFeature;
   let statusPreview: AppStatusPreviewFeature;
+  const haEntityDirectory = createHaEntityDirectoryFeature(runtime);
   const entityState = createEntityStateFeature({
     actionCardStateEntity: (button) => confirmationOptions.actionCardStateEntity(button),
     totalSlots: () => layout.totalSlots,
@@ -874,7 +876,7 @@ function composeApplicationContext(): ApplicationContext {
     appEvents,
   );
   app = createAppFeature(
-    pageTitle, createWebStyles(layout.config.dragAnimation), core, screenRotation,
+    haEntityDirectory, pageTitle, createWebStyles(layout.config.dragAnimation), core, screenRotation,
     clockBarState, shell, appEvents, statusPreview, selection, contextMenu,
     interactions, preview, buttonSettings,
   );
@@ -890,6 +892,7 @@ function composeApplicationContext(): ApplicationContext {
     buildIdentityCard: identity.buildCard,
     exportBackup: backupApplication.exportConfig,
     importBackup: backupApplication.importConfig,
+    haEntityDirectory,
   }, runtime, firmwareVersion, firmwareUpdate, c6Firmware, shell, requestApi,
   stateLoader, firmwarePostApi, artworkPostApi, publicFirmwareInstall, fields,
   settingsHelpers);

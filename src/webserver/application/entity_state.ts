@@ -160,7 +160,7 @@ export function createEntityStateFeature(dependencies: EntityStateDependencies) 
     function optionLabelForEntity(this: any, entityId?: any) {
         var names: any = state.entityNames[entityId] || [];
         if (!names.length)
-            return titleFromEntityId(entityId);
+            return state.haEntityNames[entityId] || titleFromEntityId(entityId);
         return names.join(" / ");
     }
     function entitySuggestions(this: any, domains?: any) {
@@ -168,14 +168,22 @@ export function createEntityStateFeature(dependencies: EntityStateDependencies) 
         var allowed: any = {};
         (domains || []).forEach(function (this: any, domain?: any) { allowed[domain] = true; });
         var ids: any = [];
-        for (var id in state.entityNames) {
+        var seen: any = {};
+        function collect(this: any, id?: any) {
+            if (seen[id])
+                return;
             var parsed: any = parseHomeAssistantEntity(id);
             if (!parsed)
-                continue;
+                return;
             if (domains && domains.length && !allowed[parsed.domain])
-                continue;
+                return;
+            seen[id] = true;
             ids.push(id);
         }
+        for (var id in state.entityNames)
+            collect(id);
+        for (var haId in state.haEntityNames)
+            collect(haId);
         ids.sort(function (this: any, a?: any, b?: any) {
             var al: any = optionLabelForEntity(a).toLowerCase();
             var bl: any = optionLabelForEntity(b).toLowerCase();
@@ -202,6 +210,26 @@ export function createEntityStateFeature(dependencies: EntityStateDependencies) 
     function closeEntityDropdown(this: any, input?: any) {
         if (input && input._entityDropdown)
             input._entityDropdown.classList.remove("sp-open");
+    }
+    // When a card's main entity is chosen from the suggestions, fill the paired
+    // Label field with the entity's friendly name, but only when the user left
+    // it blank. The label input shares the entity input's id prefix, ending in
+    // "label" instead of "entity"; entity boxes without a paired label (a
+    // sensor field, say) are skipped.
+    function autofillEntityLabel(this: any, input?: any, item?: any) {
+        var id: any = input && input.id ? String(input.id) : "";
+        if (!/entity$/.test(id))
+            return;
+        var labelInput: any = document.getElementById(id.replace(/entity$/, "label"));
+        if (!labelInput || String(labelInput.value || "").trim())
+            return;
+        var friendly: any = item && item.label && item.label.indexOf(" / ") === -1
+            ? item.label : titleFromEntityId(item && item.value);
+        if (!friendly)
+            return;
+        labelInput.value = friendly;
+        labelInput.dispatchEvent(new Event("input", { bubbles: true }));
+        labelInput.dispatchEvent(new Event("change", { bubbles: true }));
     }
     function refreshEntityDatalist(this: any, input?: any) {
         if (!input)
@@ -234,6 +262,7 @@ export function createEntityStateFeature(dependencies: EntityStateDependencies) 
                 rememberEntityName(item.value, item.label || titleFromEntityId(item.value));
                 input.dispatchEvent(new Event("input", { bubbles: true }));
                 input.dispatchEvent(new Event("change", { bubbles: true }));
+                autofillEntityLabel(input, item);
                 closeEntityDropdown(input);
                 input._entitySuppressDropdown = false;
             });

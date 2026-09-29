@@ -17,7 +17,7 @@ export interface AppFeature {
     init(): void;
 }
 
-export function createAppFeature(pageTitle: AppTitleFeature, webStyles: string, core: Pick<CoreFeature, "syncPreviewOrientation">, screenRotation: ScreenRotationFeature, clockBar: ClockBarFeature, shell: Pick<ControlsShellFeature, "buildUI" | "syncTabChrome">, appEvents: Pick<AppEventsFeature, "connect">, statusPreview: Pick<AppStatusPreviewFeature, "updateClock">, selection: Pick<ButtonSettingsSelectionFeature, "handleDocumentSelectionMouseDown">, contextMenu: Pick<PreviewContextMenuFeature, "hide">, interactions: Pick<PreviewInteractionsFeature, "setup">, preview: Pick<PreviewRenderFeature, "render">, buttonSettings: Pick<ButtonSettingsFeature, "render">): AppFeature {
+export function createAppFeature(haEntityDirectory: { refresh(): void }, pageTitle: AppTitleFeature, webStyles: string, core: Pick<CoreFeature, "syncPreviewOrientation">, screenRotation: ScreenRotationFeature, clockBar: ClockBarFeature, shell: Pick<ControlsShellFeature, "buildUI" | "syncTabChrome">, appEvents: Pick<AppEventsFeature, "connect">, statusPreview: Pick<AppStatusPreviewFeature, "updateClock">, selection: Pick<ButtonSettingsSelectionFeature, "handleDocumentSelectionMouseDown">, contextMenu: Pick<PreviewContextMenuFeature, "hide">, interactions: Pick<PreviewInteractionsFeature, "setup">, preview: Pick<PreviewRenderFeature, "render">, buttonSettings: Pick<ButtonSettingsFeature, "render">): AppFeature {
     const { buildUI, syncTabChrome } = shell;
     const { syncPreviewOrientation } = core;
     const { startInitialCheck: startInitialScreenRotationCheck } = screenRotation;
@@ -68,6 +68,7 @@ export function createAppFeature(pageTitle: AppTitleFeature, webStyles: string, 
         renderButtonSettings();
         appEvents.connect();
         statusPreview.updateClock();
+        haEntityDirectory.refresh();
         document.addEventListener("click", contextMenu.hide);
         document.addEventListener("mousedown", selection.handleDocumentSelectionMouseDown);
         document.addEventListener("scroll", contextMenu.hide, true);
