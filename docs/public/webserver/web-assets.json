@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "bundles": [
     {
-      "id": "1f96fd542c44f0fe3a7011fd23ac71da3b2a22c4468cd7497535b9329c1f396b",
-      "sha256": "1f96fd542c44f0fe3a7011fd23ac71da3b2a22c4468cd7497535b9329c1f396b",
-      "path": "bundles/1f96fd542c44f0fe3a7011fd23ac71da3b2a22c4468cd7497535b9329c1f396b/www.js",
+      "id": "82e50b6210ef171ce4bed957bfd092fcb733355f3e82c7ac548261703a912dfa",
+      "sha256": "82e50b6210ef171ce4bed957bfd092fcb733355f3e82c7ac548261703a912dfa",
+      "path": "bundles/82e50b6210ef171ce4bed957bfd092fcb733355f3e82c7ac548261703a912dfa/www.js",
       "deviceProfiles": [
         "guition-esp32-p4-jc1060p470",
         "guition-esp32-p4-jc1060p470-v2",
@@ -21,9 +21,9 @@
       "webAssetVersion": 2
     },
     {
-      "id": "1f96fd542c44f0fe3a7011fd23ac71da3b2a22c4468cd7497535b9329c1f396b",
-      "sha256": "1f96fd542c44f0fe3a7011fd23ac71da3b2a22c4468cd7497535b9329c1f396b",
-      "path": "bundles/1f96fd542c44f0fe3a7011fd23ac71da3b2a22c4468cd7497535b9329c1f396b/www.js",
+      "id": "82e50b6210ef171ce4bed957bfd092fcb733355f3e82c7ac548261703a912dfa",
+      "sha256": "82e50b6210ef171ce4bed957bfd092fcb733355f3e82c7ac548261703a912dfa",
+      "path": "bundles/82e50b6210ef171ce4bed957bfd092fcb733355f3e82c7ac548261703a912dfa/www.js",
       "deviceProfiles": [
         "guition-esp32-p4-jc1060p470",
         "guition-esp32-p4-jc1060p470-v2",
@@ -40,9 +40,9 @@
       "webAssetVersion": 1
     },
     {
-      "id": "e704c735b62e89dc96095ee2110cd6ce21afc26c776d4dc7f1072b7e1ff0eeea",
-      "sha256": "e704c735b62e89dc96095ee2110cd6ce21afc26c776d4dc7f1072b7e1ff0eeea",
-      "path": "bundles/e704c735b62e89dc96095ee2110cd6ce21afc26c776d4dc7f1072b7e1ff0eeea/www.js",
+      "id": "42f3fd87eb8cbfab59943a7643a19416ded29eddb8608498ada20e95b416fd49",
+      "sha256": "42f3fd87eb8cbfab59943a7643a19416ded29eddb8608498ada20e95b416fd49",
+      "path": "bundles/42f3fd87eb8cbfab59943a7643a19416ded29eddb8608498ada20e95b416fd49/www.js",
       "deviceProfiles": [
         "guition-esp32-p4-jc1060p470",
         "guition-esp32-p4-jc1060p470-v2",
@@ -54,14 +54,18 @@
         "guition-esp32-s3-4848s040"
       ],
       "firmwareVersions": [
-        "2026.9.0"
+        "v2.10.0",
+        "v2.9.1",
+        "v2.9.0",
+        "v2.8.6",
+        "v2.8.4"
       ],
       "webAssetVersion": 2
     },
     {
-      "id": "e704c735b62e89dc96095ee2110cd6ce21afc26c776d4dc7f1072b7e1ff0eeea",
-      "sha256": "e704c735b62e89dc96095ee2110cd6ce21afc26c776d4dc7f1072b7e1ff0eeea",
-      "path": "bundles/e704c735b62e89dc96095ee2110cd6ce21afc26c776d4dc7f1072b7e1ff0eeea/www.js",
+      "id": "42f3fd87eb8cbfab59943a7643a19416ded29eddb8608498ada20e95b416fd49",
+      "sha256": "42f3fd87eb8cbfab59943a7643a19416ded29eddb8608498ada20e95b416fd49",
+      "path": "bundles/42f3fd87eb8cbfab59943a7643a19416ded29eddb8608498ada20e95b416fd49/www.js",
       "deviceProfiles": [
         "guition-esp32-p4-jc1060p470",
         "guition-esp32-p4-jc1060p470-v2",
@@ -73,7 +77,11 @@
         "guition-esp32-s3-4848s040"
       ],
       "firmwareVersions": [
-        "2026.9.0"
+        "v2.10.0",
+        "v2.9.1",
+        "v2.9.0",
+        "v2.8.6",
+        "v2.8.4"
       ],
       "webAssetVersion": 1
     }
