@@ -545,16 +545,6 @@
         "public": {
           "name": "Guition JC1060P470",
           "docsPath": "/screens/jc1060p470"
-        },
-        "firmware": {
-          "package": {
-            "substitutions": {
-              "speaker_amplifier_pin": "\"GPIO11\""
-            },
-            "extraPackages": {
-              "speaker_output": "!include ../../common/device/speaker_output_p4.yaml"
-            }
-          }
         }
       },
       "overrides": {
@@ -591,12 +581,8 @@
         },
         "firmware": {
           "package": {
-            "substitutions": {
-              "speaker_amplifier_pin": "\"GPIO11\""
-            },
             "extraPackages": {
-              "camera_motion": "!include ../../common/addon/camera_motion.yaml",
-              "speaker_output": "!include ../../common/device/speaker_output_p4.yaml"
+              "camera_motion": "!include ../../common/addon/camera_motion.yaml"
             }
           }
         }
@@ -775,11 +761,7 @@
               "screen_saver_clock_min_brightness": "\"1\"",
               "screen_saver_clock_default_brightness": "\"35\"",
               "screen_schedule_clock_min_brightness": "\"1\"",
-              "screen_schedule_clock_default_brightness": "\"10\"",
-              "speaker_amplifier_pin": "\"GPIO11\""
-            },
-            "extraPackages": {
-              "speaker_output": "!include ../../common/device/speaker_output_p4.yaml"
+              "screen_schedule_clock_default_brightness": "\"10\""
             }
           }
         }
@@ -802,11 +784,7 @@
         "firmware": {
           "package": {
             "extraPackages": {
-              "battery": "!include device/battery.yaml",
-              "speaker_output": "!include ../../common/device/speaker_output_p4.yaml"
-            },
-            "substitutions": {
-              "speaker_amplifier_pin": "\"GPIO20\""
+              "battery": "!include device/battery.yaml"
             }
           }
         }
@@ -834,16 +812,6 @@
         "public": {
           "name": "Guition JC8012P4A1 new panel (2628+)",
           "docsPath": "/screens/jc8012p4a1-v2"
-        },
-        "firmware": {
-          "package": {
-            "substitutions": {
-              "speaker_amplifier_pin": "\"GPIO20\""
-            },
-            "extraPackages": {
-              "speaker_output": "!include ../../common/device/speaker_output_p4.yaml"
-            }
-          }
         }
       },
       "overrides": {
@@ -869,16 +837,6 @@
         "public": {
           "name": "Guition JC8012P4A1 V3 (production silicon)",
           "docsPath": "/screens/jc8012p4a1-v3"
-        },
-        "firmware": {
-          "package": {
-            "substitutions": {
-              "speaker_amplifier_pin": "\"GPIO20\""
-            },
-            "extraPackages": {
-              "speaker_output": "!include ../../common/device/speaker_output_p4.yaml"
-            }
-          }
         }
       },
       "overrides": {
@@ -1255,10 +1213,7 @@
               "screen_schedule_clock_min_brightness": "\"1\"",
               "screen_schedule_clock_default_brightness": "\"10\""
             },
-            "apiNavigateAction": true,
-            "extraPackages": {
-              "speaker_output": "!include ../../common/device/speaker_output_s3_external.yaml"
-            }
+            "apiNavigateAction": true
           }
         }
       }
