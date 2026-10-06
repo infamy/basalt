@@ -230,6 +230,7 @@ export interface AppState {
   firmwareChecking: boolean;
   firmwareVersionRefreshPending: boolean;
   firmwareInstallTargetVersion: string;
+  firmwareWebOtaDownloadPending: boolean;
   firmwareInstallPostPending: boolean;
   firmwareInstallStatus: string;
   firmwareInstallError: string;

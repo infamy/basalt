@@ -26,6 +26,7 @@ export interface FirmwareUpdateFeature {
     syncUi(): void;
     renderStatus(): void;
     setInfo(data?: any): void;
+    pauseInstallRefresh(): void;
     stopInstallRefresh(): void;
     stopInstallRefreshIfComplete(): boolean;
     startInstallRefresh(restartWindow?: boolean): void;
@@ -303,7 +304,8 @@ export function createFirmwareUpdateFeature(
             }
         }
         // Keep the controls busy while the final asynchronous refresh is pending.
-        if (state.firmwareInstallTargetVersion && firmwareInstallRefreshUntil &&
+        if (state.firmwareInstallTargetVersion &&
+            (firmwareInstallRefreshUntil || state.firmwareWebOtaDownloadPending) &&
             (updateState === "UPDATE AVAILABLE" || updateState === "NO UPDATE")) {
             updateState = "INSTALLING";
         }
@@ -311,7 +313,7 @@ export function createFirmwareUpdateFeature(
         state.firmwareReleaseUrl = d.release_url || state.firmwareReleaseUrl || "";
         if (state.firmwareUpdateState)
             state.firmwareChecking = false;
-        if (state.firmwareUpdateState === "INSTALLING") {
+        if (state.firmwareUpdateState === "INSTALLING" && !state.firmwareWebOtaDownloadPending) {
             startFirmwareInstallRefresh();
         }
         else {
@@ -325,10 +327,19 @@ export function createFirmwareUpdateFeature(
             clearTimeout(firmwareInstallRefreshTimer);
         firmwareInstallRefreshTimer = null;
         firmwareInstallRefreshUntil = 0;
+        state.firmwareWebOtaDownloadPending = false;
         clearFirmwareWebOtaFallback();
         state.firmwareInstallTargetVersion = "";
         state.firmwareInstallPostPending = false;
         state.firmwareInstallStatus = "";
+    }
+    function pauseFirmwareInstallRefresh(this: any) {
+        firmwareInstallRefreshGeneration++;
+        if (firmwareInstallRefreshTimer)
+            clearTimeout(firmwareInstallRefreshTimer);
+        firmwareInstallRefreshTimer = null;
+        firmwareInstallRefreshUntil = 0;
+        state.firmwareWebOtaDownloadPending = true;
     }
     function stopFirmwareInstallRefreshIfComplete(this: any) {
         var target: any = state.firmwareInstallTargetVersion;
@@ -426,6 +437,7 @@ export function createFirmwareUpdateFeature(
         syncUi: syncFirmwareUpdateUi,
         renderStatus: renderFirmwareUpdateStatus,
         setInfo: setFirmwareUpdateInfo,
+        pauseInstallRefresh: pauseFirmwareInstallRefresh,
         stopInstallRefresh: stopFirmwareInstallRefresh,
         stopInstallRefreshIfComplete: stopFirmwareInstallRefreshIfComplete,
         startInstallRefresh: startFirmwareInstallRefresh,
