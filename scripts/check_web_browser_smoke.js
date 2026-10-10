@@ -6288,7 +6288,7 @@ async function assertPanelNaming(browser) {
     await card.getByText("Could not read the panel name. Check the connection and try again.").waitFor();
     identityState.failLoad = false;
     await card.getByRole("button", { name: "Try again", exact: true }).click();
-    await page.waitForFunction(() => document.title === "Basalt — Kitchen");
+    await page.waitForFunction(() => document.title === "Basalt - Kitchen");
     assert.strictEqual(await page.locator(".sp-brand").textContent(), "Basalt Kitchen");
     const save = card.getByRole("button", { name: "Save & Restart", exact: true });
     assert(await save.isDisabled(), "unchanged names cannot be saved");
@@ -6299,11 +6299,11 @@ async function assertPanelNaming(browser) {
     await save.click();
     await page.waitForFunction(() => document.querySelector('[role="status"]')?.textContent?.includes("Could not save"));
     assert.strictEqual(restartRequests.length, 0, "failed save must not restart");
-    assert.strictEqual(await page.title(), "Basalt — Kitchen");
+    assert.strictEqual(await page.title(), "Basalt - Kitchen");
     identityState.failSave = false;
     await save.click();
     await page.waitForSelector("dialog[open]");
-    await page.waitForFunction(() => document.title === "Basalt — Office");
+    await page.waitForFunction(() => document.title === "Basalt - Office");
     assert.strictEqual(await page.locator("dialog a").first().getAttribute("href"), "http://office-b2c3.local/");
     await page.waitForTimeout(500);
     assert.strictEqual(restartRequests.length, 1, "successful save requests one restart");
@@ -6325,7 +6325,7 @@ async function assertPanelNaming(browser) {
     await importBackup(page, backup, "restore-source-name");
     await page.getByRole("checkbox", { name: "Also restore panel name" }).check();
     await page.getByRole("button", { name: "Restore", exact: true }).click();
-    await page.waitForFunction(() => document.title === "Basalt — Bedroom");
+    await page.waitForFunction(() => document.title === "Basalt - Bedroom");
     assert.strictEqual(identityState.info.hostname, "bedroom-b2c3", "selected name restore keeps destination suffix");
     assert.strictEqual(identityState.posts.length, 3, "name written once after successful restore");
     assert.deepStrictEqual(errors, [], "naming journey has no browser errors");
