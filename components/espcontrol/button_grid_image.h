@@ -1012,6 +1012,8 @@ inline void image_card_handle_modal_download_error(ImageCardCtx *ctx) {
   }
 }
 
+inline bool image_card_context_visible_on_active_screen(ImageCardCtx *ctx);
+
 inline void image_card_bind_callbacks(ImageCardCtx *ctx) {
   if (!ctx || !ctx->image) return;
   auto *bound_image = ctx->image;
@@ -1029,6 +1031,22 @@ inline void image_card_bind_callbacks(ImageCardCtx *ctx) {
     });
   }
   ctx->callbacks_bound_image = bound_image;
+  bound_image->set_animation_callbacks([ctx, bound_image]() {
+    return ctx->image == bound_image && ctx->active && !image_card_pipeline_suspended() &&
+           !image_card_modal_ui().active && ctx->widget &&
+           !lv_obj_has_flag(ctx->widget, LV_OBJ_FLAG_HIDDEN) &&
+           image_card_context_visible_on_active_screen(ctx);
+  }, [ctx, bound_image]() {
+    if (ctx->image == bound_image && ctx->widget) lv_obj_invalidate(ctx->widget);
+  }, [ctx, bound_image]() {
+    // Covering a card with a modal does not move it to another page. Also
+    // admit newly loaded cards before their image widget is made visible.
+    if (ctx->image != bound_image || !ctx->active || !ctx->btn ||
+        lv_obj_has_flag(ctx->btn, LV_OBJ_FLAG_HIDDEN)) return false;
+    auto *screen = ctx->btn;
+    while (lv_obj_get_parent(screen)) screen = lv_obj_get_parent(screen);
+    return screen == lv_scr_act();
+  });
 }
 
 inline void image_card_bind_modal_callbacks(
@@ -1036,6 +1054,16 @@ inline void image_card_bind_modal_callbacks(
   static esphome::artwork_image::ArtworkImage *bound_image = nullptr;
   if (!modal_image || bound_image == modal_image) return;
   bound_image = modal_image;
+  modal_image->set_animation_callbacks([modal_image]() {
+    auto *ctx = image_card_modal_ui().active;
+    return ctx && ctx->modal_image == modal_image && !image_card_pipeline_suspended() &&
+           control_modal_active().kind == ControlModalKind::IMAGE_CARD &&
+           image_card_modal_ui().image_widget &&
+           !lv_obj_has_flag(image_card_modal_ui().image_widget, LV_OBJ_FLAG_HIDDEN);
+  }, []() {
+    auto *widget = image_card_modal_ui().image_widget;
+    if (widget) lv_obj_invalidate(widget);
+  });
   modal_image->add_on_finished_callback([modal_image](bool) {
     ImageCardCtx *ctx = image_card_modal_ui().active;
     if (ctx && ctx->modal_image == modal_image && !image_card_pipeline_suspended())
@@ -3038,6 +3066,14 @@ inline void image_card_refresh_due(std::function<bool()> page_visible = nullptr)
     const bool connected = ha_api_state_connected();
     const bool visible = image_card_context_on_active_screen(ctx);
     const bool visible_modal = image_card_modal_active_for(ctx) && visible;
+    // Subpages retain their picture when inactive. A still whose playback data
+    // was discarded must reacquire the source even when HA's revision is unchanged.
+    // The image owns slot eligibility; this shared path also covers Media Cover Art.
+    if (connected && image_card_context_visible_on_active_screen(ctx) && ctx->image_ready && !ctx->download_active &&
+        ctx->next_download_retry_ms == 0 && !ctx->camera_entity_unavailable &&
+        ctx->image && ctx->image->animation_needs_reload()) {
+      image_card_request_source_url(ctx);
+    }
     const bool activity = ctx->refresh_schedule.mode == espcontrol::camera::RefreshMode::ACTIVITY;
     const bool periodic = ctx->refresh_schedule.mode == espcontrol::camera::RefreshMode::PERIODIC;
     const bool schedule_visible = visible_modal || ((activity || periodic) && visible);
