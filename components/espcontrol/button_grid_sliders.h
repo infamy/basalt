@@ -3611,6 +3611,12 @@ inline void media_volume_layout_modal(MediaVolumeCtx *ctx) {
   if (!ctx || !ui.overlay || !ui.panel) return;
   ControlModalLayout layout = control_modal_calc_layout(ctx->width_compensation_percent);
   control_modal_apply_panel_layout(ui.overlay, ui.panel, layout, media_volume_card_radius(ctx));
+  if (ui.pct_lbl) {
+    const lv_font_t *number_font = display_modal_volume_number_font(ctx->number_font);
+    if (number_font) {
+      lv_obj_set_style_text_font(ui.pct_lbl, number_font, LV_PART_MAIN);
+    }
+  }
   if (ui.title_lbl) lv_obj_update_layout(ui.title_lbl);
   if (ui.pct_row) lv_obj_update_layout(ui.pct_row);
   lv_coord_t title_h = ui.title_lbl ? lv_obj_get_height(ui.title_lbl) : 0;
