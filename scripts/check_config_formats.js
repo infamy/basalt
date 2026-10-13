@@ -1229,6 +1229,7 @@ const screenLockCard = {
   options: "",
 };
 assertButtonRoundTrip(hooks, "screen lock local card", screenLockCard, false);
+assertButtonRoundTrip(hooks, "screen lock screensaver on lock", { ...screenLockCard, options: "screensaver_on_lock" }, false);
 assert.deepStrictEqual(
   buttonShape(hooks.parseButtonConfig(hooks.serializeButtonConfig({
     entity: "switch.should_not_save",

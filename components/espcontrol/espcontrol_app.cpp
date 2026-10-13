@@ -28,6 +28,7 @@
 #include "panel_config_write_endpoint.h"
 #include "panel_config_http_context.h"
 #include "panel_identity_endpoint.h"
+#include "screensaver_pin_endpoint.h"
 #include "button_grid.h"
 
 // Optional components (such as camera_motion) provide this to add their own
@@ -41,6 +42,7 @@ extern "C" void espcontrol_register_web_server_handlers(
   if (server == nullptr) return;
   espcontrol::reset::register_handlers(*server);
   espcontrol::register_panel_identity_endpoint(*server);
+  espcontrol::register_screensaver_pin_endpoint(*server);
   register_local_sensor_endpoint(*server);
   register_local_action_endpoint(*server);
   espcontrol::configuration::register_panel_config_capabilities_endpoint(*server);
@@ -229,6 +231,7 @@ void EspControlApp::apply_boot_configuration() {
 }
 
 void EspControlApp::setup() {
+  screensaver_pin().setup();
   home_assistant_endpoint_.setup();
   esphome::artwork_image::TransferObserver::instance().set(
       [this](const std::string &origin) -> uint32_t {

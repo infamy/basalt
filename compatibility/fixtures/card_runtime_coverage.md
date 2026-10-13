@@ -5,11 +5,10 @@ It records the pre-migration baseline; it does not move executable behaviour int
 
 - Contract types: 44
 - Runtime-only types: 3
-- Baseline cases: 97
+- Baseline cases: 95
 
 | Contract type | Classification | Runtime driver | Capabilities | Canonical saved type | Web registration | Firmware family | Cases |
 |---|---|---|---|---|---|---|---:|
-| dual_switch | canonical | dual_switch | subscriptions, actions, runtimeAllocation, subpage | dual_switch | dual_switch | DUAL_SWITCH | 2 |
 | timer | canonical | timer | subscriptions, actions, runtimeAllocation, subpage | timer | timer | TIMER | 2 |
 | (switch) | canonical | toggle | subscriptions, actions, subpage | (switch) | (switch) | TOGGLE | 1 |
 | action | canonical | action | subscriptions, actions, runtimeAllocation, subpage | action | action | ACTION | 2 |
@@ -41,6 +40,7 @@ It records the pre-migration baseline; it does not move executable behaviour int
 | media | canonical | media | subscriptions, actions, numericControl, modal, runtimeAllocation, subpage | media | media | MEDIA | 9 |
 | option_select | accepted_legacy_input | option_select | subscriptions, actions, runtimeAllocation, subpage | action | action | OPTION_SELECT | 1 |
 | push | canonical | push | actions, subpage | push | push | PUSH | 1 |
+| screensaver | canonical | screensaver | actions, subpage | screensaver | screensaver | SCREENSAVER | 1 |
 | screen_lock | canonical | screen_lock | subscriptions, actions, subpage | screen_lock | screen_lock | SCREEN_LOCK | 1 |
 | webhook | canonical | webhook | subscriptions, actions, subpage | webhook | webhook | WEBHOOK | 2 |
 | sensor | canonical | sensor | informationOnly, subscriptions, runtimeAllocation, subpage | sensor | sensor | SENSOR | 5 |
@@ -48,7 +48,7 @@ It records the pre-migration baseline; it does not move executable behaviour int
 | slider | canonical | numeric | subscriptions, actions, numericControl, runtimeAllocation, subpage | slider | slider | SLIDER | 1 |
 | subpage | canonical | subpage | actions, runtimeAllocation | subpage | subpage | SUBPAGE | 1 |
 | timezone | canonical | date_time | informationOnly, subscriptions, subpage | timezone | timezone | DATE_TIME | 1 |
-| weather | canonical | weather | informationOnly, subscriptions, subpage | weather | weather | WEATHER | 4 |
+| weather | canonical | weather | informationOnly, subscriptions, subpage | weather | weather | WEATHER | 3 |
 | image | canonical | image | informationOnly, subscriptions, actions, modal, runtimeAllocation, subpage | image | image | IMAGE | 1 |
 | wifi_qr | canonical | wifi_qr | subscriptions, actions, modal, subpage | wifi_qr | wifi_qr | WIFI_QR | 2 |
 | wifi_qr_card | canonical | wifi_qr | subscriptions, actions, modal, subpage | wifi_qr_card | wifi_qr_card | WIFI_QR | 2 |
