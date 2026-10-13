@@ -88,6 +88,7 @@ export interface RuntimeSubpage {
   grid: number[];
   sizes: SlotSizeMap;
   backLabel?: string;
+  backColor?: string;
 }
 
 export interface AppClipboard {
