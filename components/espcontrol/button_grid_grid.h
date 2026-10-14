@@ -143,6 +143,8 @@ inline CardPalette card_palette_for_config(const CardPalette &defaults,
                                             const DisplayProfile &display) {
   CardPalette palette = defaults;
   bool valid = false;
+  const std::string active_mode = cfg_option_value(config.options, "card_active_color");
+  palette.explicit_active_color = active_mode == "theme";
   const std::string off = cfg_option_value(config.options, "card_off_color");
   if (!off.empty()) {
     const uint32_t raw = parse_hex_color(off, valid);
@@ -153,9 +155,19 @@ inline CardPalette card_palette_for_config(const CardPalette &defaults,
       palette.sensor_val = palette.off_val;
       palette.surface_sensor_val = palette.off_val;
       palette.custom_background = true;
-      palette.has_on = true;
-      palette.on_val = display_correct_color(active_card_color(raw), display);
+      if (active_mode != "theme") {
+        palette.has_on = true;
+        palette.on_val = display_correct_color(active_card_color(raw), display);
+      }
       palette.progress_val = display_correct_color(card_progress_color(raw), display);
+    }
+  }
+  if (active_mode == "custom") {
+    const uint32_t on = parse_hex_color(cfg_option_value(config.options, "card_on_color"), valid);
+    if (valid) {
+      palette.has_on = true;
+      palette.on_val = display_correct_color(on, display);
+      palette.explicit_active_color = true;
     }
   }
   return palette;
@@ -338,6 +350,9 @@ inline bool card_slot_static_child(const BtnSlot &s, lv_obj_t *child) {
 
 inline void reset_card_slot_dynamic_children(BtnSlot &s) {
   if (!s.btn) return;
+  slider_bind_text_contrast(s.icon_lbl, nullptr);
+  slider_bind_text_contrast(s.text_lbl, nullptr);
+  slider_bind_text_contrast(s.sensor_container, nullptr);
   lv_obj_clear_flag(s.btn, LV_OBJ_FLAG_HIDDEN);
   lv_obj_clear_state(s.btn, LV_STATE_CHECKED);
   sync_card_checked_text_color(s.btn);
