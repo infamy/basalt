@@ -18,6 +18,9 @@ export interface DeviceConfigFeatures {
 }
 
 export interface DeviceConfig {
+  readonly cardRadiusPixels?: number;
+  readonly cardCurveRadii?: Readonly<Record<string, number>>;
+  readonly continuousCorners?: boolean;
   readonly slots: number;
   readonly cols: number;
   readonly rows: number;
@@ -192,6 +195,8 @@ export interface AppState {
   brightnessNightVal: number;
   brightnessMode: string;
   themeMode: string;
+  cardCurve: string;
+  cardCurveSupported: boolean;
   themeAutoMethod: string;
   themeActive: string;
   themeLightStart: string;
