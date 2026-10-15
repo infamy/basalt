@@ -199,41 +199,6 @@ export const CARD_CONTRACT_CARDS: Readonly<Record<string, CardTypeSpec>> = {
       "options": ""
     }
   },
-  "dual_switch": {
-    "label": "Dual Switch",
-    "allowInSubpage": true,
-    "domains": [
-      "light",
-      "switch",
-      "input_boolean",
-      "fan"
-    ],
-    "options": [
-      {
-        "name": "dual_layout",
-        "label": "Layout",
-        "kind": "choice",
-        "values": [
-          "",
-          "side"
-        ],
-        "defaultValue": "",
-        "storageField": "precision",
-        "omitDefault": false
-      }
-    ],
-    "default": {
-      "entity": "",
-      "label": "",
-      "icon": "Auto",
-      "icon_on": "Auto",
-      "sensor": "",
-      "unit": "",
-      "type": "dual_switch",
-      "precision": "",
-      "options": ""
-    }
-  },
   "": {
     "label": "Switch",
     "allowInSubpage": true,
@@ -3786,23 +3751,11 @@ export const CARD_CONTRACT_CARDS: Readonly<Record<string, CardTypeSpec>> = {
           "",
           "today",
           "tomorrow",
-          "days"
+          "daily"
         ],
         "defaultValue": "",
         "storageField": "precision",
         "omitDefault": true
-      },
-      {
-        "name": "large_numbers",
-        "label": "Large Temperature Numbers",
-        "kind": "flag",
-        "omitDefault": true,
-        "supportedWhen": {
-          "precision": [
-            "today",
-            "tomorrow"
-          ]
-        }
       }
     ],
     "normalization": {
@@ -3840,9 +3793,7 @@ export const CARD_CONTRACT_CARDS: Readonly<Record<string, CardTypeSpec>> = {
         }
       },
       "unknownOptions": "drop",
-      "canonicalOptionOrder": [
-        "large_numbers"
-      ],
+      "canonicalOptionOrder": [],
       "migrationActions": [
         "legacy_weather_forecast"
       ],
@@ -4211,18 +4162,6 @@ export const CARD_CONTRACT_CARDS: Readonly<Record<string, CardTypeSpec>> = {
 export const CARD_RUNTIME_SPECS: Readonly<Record<string, CardRuntimeSpec>> = {
   "timer": {
     "driver": "timer",
-    "capabilities": {
-      "informationOnly": false,
-      "subscriptions": true,
-      "actions": true,
-      "numericControl": false,
-      "modal": false,
-      "runtimeAllocation": true,
-      "subpage": true
-    }
-  },
-  "dual_switch": {
-    "driver": "dual_switch",
     "capabilities": {
       "informationOnly": false,
       "subscriptions": true,
@@ -4720,10 +4659,10 @@ export const CARD_RUNTIME_SPECS: Readonly<Record<string, CardRuntimeSpec>> = {
     "capabilities": {
       "informationOnly": true,
       "subscriptions": true,
-      "actions": false,
+      "actions": true,
       "numericControl": false,
-      "modal": false,
-      "runtimeAllocation": false,
+      "modal": true,
+      "runtimeAllocation": true,
       "subpage": true
     }
   },
@@ -4768,10 +4707,10 @@ export const CARD_RUNTIME_SPECS: Readonly<Record<string, CardRuntimeSpec>> = {
     "capabilities": {
       "informationOnly": true,
       "subscriptions": true,
-      "actions": false,
+      "actions": true,
       "numericControl": false,
-      "modal": false,
-      "runtimeAllocation": false,
+      "modal": true,
+      "runtimeAllocation": true,
       "subpage": true
     }
   }
@@ -4810,7 +4749,6 @@ export const CARD_CONTRACT_OPTION_SELECT_ACTION = "input_select.select_option";
 export const CARD_CONTRACT_OPTION_SELECT_ACTIONS = ["input_select.select_option", "select.select_option"] as const;
 export const CARD_CONTRACT_SUBPAGE_TYPE_CODES: Readonly<Record<string, string>> = {
   "timer": "TM",
-  "dual_switch": "DS",
   "action": "A",
   "calendar": "D",
   "clock": "CK",
@@ -4853,7 +4791,6 @@ export const CARD_CONTRACT_SUBPAGE_TYPE_CODES: Readonly<Record<string, string>> 
 };
 export const CARD_CONTRACT_SUBPAGE_TYPES_BY_CODE: Readonly<Record<string, string>> = {
   "TM": "timer",
-  "DS": "dual_switch",
   "A": "action",
   "D": "calendar",
   "CK": "clock",
@@ -4903,12 +4840,6 @@ export const CARD_CONTRACT_LARGE_NUMBERS: Readonly<Record<string, LargeNumbersRu
       "text"
     ]
   },
-  "weather": {
-    "precisions": [
-      "today",
-      "tomorrow"
-    ]
-  },
   "calendar": true,
   "clock": true,
   "climate": true,
@@ -4936,7 +4867,6 @@ export const CARD_CONTRACT_OPTION_NAMES: Readonly<Record<string, string>> = {
   "cover_position": "cover_position",
   "cover_tabs": "cover_tabs",
   "date_time_mode": "date_time_mode",
-  "dual_layout": "dual_layout",
   "fan_light_entity": "fan_light_entity",
   "fan_tabs": "fan_tabs",
   "garage_mode": "garage_mode",

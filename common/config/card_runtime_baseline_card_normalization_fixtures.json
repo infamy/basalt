@@ -1320,8 +1320,8 @@
     }
   },
   {
-    "name": "weather: days",
-    "input": "~weather.example,,Auto,Auto,,,weather,days,",
+    "name": "weather: daily",
+    "input": "~weather.example,,Auto,Auto,,,weather,daily,",
     "expected": {
       "entity": "weather.example",
       "label": "",
@@ -1330,7 +1330,7 @@
       "sensor": "",
       "unit": "",
       "type": "weather",
-      "precision": "days",
+      "precision": "daily",
       "options": ""
     }
   },

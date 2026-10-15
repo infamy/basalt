@@ -153,7 +153,6 @@ TASKS = (
              "components/espcontrol/ha_read_coordinator.h",
              "components/artwork_image/image_pipeline_policy.h",
              "components/camera_motion/motion_policy.h",
-             "components/espcontrol/weather_days_forecast.h",
              "common/config/card_normalization_fixtures.json",
              "common/config/*_card_normalization_fixtures.json",
              "scripts/generate_saved_config_parser_test.py",

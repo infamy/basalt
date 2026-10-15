@@ -465,11 +465,6 @@ target_include_directories(camera_motion_policy_test PRIVATE ../../components/ca
 add_test(NAME camera_motion_policy_test COMMAND camera_motion_policy_test)
 add_test(NAME camera_motion_wiring_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/camera_motion_wiring_test.py)
-add_executable(weather_days_forecast_test weather_days_forecast_test.cpp)
-target_compile_features(weather_days_forecast_test PRIVATE cxx_std_17)
-target_compile_options(weather_days_forecast_test PRIVATE -Wall -Wextra -Werror)
-target_include_directories(weather_days_forecast_test PRIVATE ../../components/espcontrol)
-add_test(NAME weather_days_forecast_test COMMAND weather_days_forecast_test)
 add_test(NAME ha_reconnect_recovery_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/ha_reconnect_recovery_test.py)
 add_test(NAME cover_art_metadata_test COMMAND
@@ -667,3 +662,22 @@ add_test(NAME screensaver_pin_ui_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/screensaver_pin_ui_test.py ${CMAKE_CXX_COMPILER})
 add_test(NAME screensaver_pin_cover_art_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/screensaver_pin_cover_art_test.py ${CMAKE_CXX_COMPILER})
+
+add_executable(weather_daily_forecast_test weather_daily_forecast_test.cpp)
+target_compile_features(weather_daily_forecast_test PRIVATE cxx_std_17)
+target_compile_options(weather_daily_forecast_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(weather_daily_forecast_test PRIVATE ../../components/espcontrol)
+add_test(NAME weather_daily_forecast_test COMMAND weather_daily_forecast_test)
+
+add_test(NAME weather_daily_template_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/weather_daily_template_test.py)
+
+add_executable(weather_daily_ui_test weather_daily_ui_test.cpp)
+target_compile_features(weather_daily_ui_test PRIVATE cxx_std_17)
+target_compile_options(weather_daily_ui_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(weather_daily_ui_test PRIVATE ../../components/espcontrol)
+add_test(NAME weather_daily_ui_test COMMAND weather_daily_ui_test)
+
+add_test(NAME weather_daily_requests_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/weather_daily_requests_test.py)
