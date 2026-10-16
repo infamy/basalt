@@ -448,7 +448,6 @@ export default defineConfig({
         text: 'Reference',
         items: [
           { text: 'FAQ', link: '/reference/faq' },
-          { text: 'Icon Reference', link: '/reference/icons' },
         ],
       },
       {

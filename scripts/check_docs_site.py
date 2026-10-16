@@ -229,6 +229,7 @@ def check_build(dist):
         'features/clock-bar': BASE + 'features/appearance#clock-bar',
         'reference/card-capabilities': BASE + 'card-types/',
         'reference/language-support': BASE + 'settings/preferences#language',
+        'reference/icons': BASE + 'settings/layout#add-or-edit-a-card',
         'reference/request-device-support': BASE + 'screens/',
         'card-types/weather-forecast': BASE + 'card-types/weather#setting-up-a-weather-card',
         'generated/cards/capabilities': BASE + 'card-types/',
