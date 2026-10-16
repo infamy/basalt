@@ -71,6 +71,5 @@ Compare [screen sizes, image limits, and hardware revisions](/screens/) before o
 ## Next Steps
 
 - **[Device](/features/setup)** — install, connect, and open the setup page.
-- **[Layout settings](/settings/layout)** — add, arrange, and resize cards and subpages.
-- **[Screen settings](/settings/screen)** — appearance, display, and sleep behaviour.
-- **[System settings](/settings/system)** — preferences, backups, updates, and device management.
+- **Screen** — [Appearance](/features/appearance), [Display](/settings/display), and [Sleep & Schedule](/settings/sleep).
+- **System** — [System settings](/settings/system), including backups, updates, and device management.

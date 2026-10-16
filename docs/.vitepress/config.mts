@@ -374,14 +374,6 @@ export default defineConfig({
         ],
       },
       {
-        text: 'Layout settings', link: '/settings/layout',
-        items: [
-          { text: 'Add, Arrange & Edit Cards', link: '/settings/layout' },
-          { text: 'Subpages', link: '/features/subpages' },
-          { text: 'Speaker Groups', link: '/features/speaker-groups' },
-        ],
-      },
-      {
         text: 'Card Types',
         items: [
           { text: 'Overview', link: '/card-types/' },
@@ -419,22 +411,14 @@ export default defineConfig({
         ],
       },
       {
-        text: 'Screen settings', link: '/settings/screen',
+        text: 'Screen settings',
         items: [
-          { text: 'Overview', link: '/settings/screen' },
           { text: 'Appearance', link: '/features/appearance' },
           { text: 'Display', link: '/settings/display' },
           { text: 'Sleep & Schedule', link: '/settings/sleep' },
         ],
       },
-      {
-        text: 'System settings', link: '/settings/system',
-        items: [
-          { text: 'Overview', link: '/settings/system' },
-          { text: 'Preferences', link: '/settings/preferences' },
-          { text: 'System', link: '/settings/maintenance' },
-        ],
-      },
+      { text: 'System settings', link: '/settings/system' },
       { text: 'Immich Photos', link: '/immich/' },
       {
         text: 'Advanced',
