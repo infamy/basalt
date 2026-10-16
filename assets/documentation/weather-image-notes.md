@@ -20,13 +20,26 @@ The original photo template is kept outside the repository. Supply your local co
 node assets/documentation/compose-screen.cjs \
   /path/to/Template.png \
   assets/documentation/weather-screen-reference.png \
-  docs/public/images/weather-device-mockup.webp
+  docs/public/images/weather-device-mockup.webp --glass
 ```
 
 The helper uses the template's transparent screen mask and detects its corners: top left `(1008, 357)`, top right `(2235, 567)`, bottom right `(1943, 1874)`, bottom left `(862, 1505)`. It removes the preview's four-pixel simulated enclosure outline, fits all screen content with one perspective transform, and blends the cutout's antialiased edge. It checks corner alignment and verifies all 5,366,835 pixels outside the cutout remain unchanged after encoding. Keep the source template unchanged when using it for other feature examples.
+
+The optional `--glass` finish softens the inserted screen with a 0.8-pixel blur before projection, slightly reduces its brightness, and adds a diffuse cool reflection with a broad, soft window highlight. The reflection follows the same screen plane and stays inside the cutout. The original editor screenshot stays unmodified. Omit the flag to produce a crisp composite without the glass finish.
 
 ## Capture the editor screenshots
 
 The admin screenshots were captured with Playwright using the existing browser smoke harness's local routes, simulated EventSource, and native configuration loader. They show the actual editor with a simulated device, not a live panel.
 
 The preview uses `esp32-p4-86`, four weather cards with modes `""`, `today`, `tomorrow`, `daily`, and grid order `1,2,3,4h`. Each card uses `weather.forecast_home`. Open the daily card's editor and select each Type to capture the four settings dialogs. No live panel or Home Assistant credentials are needed.
+
+The device mockup's screen reference uses the editor's supported **Custom Colours** background setting (`card_off_color`) for each card:
+
+| Card | Background |
+|---|---|
+| Current Conditions | `#00B8CF` |
+| Today's Forecast | `#0457D9` |
+| Tomorrow's Forecast | `#0083D6` |
+| Daily Forecast | `#075ACB` |
+
+These colours are saved card configuration, not an image recolour or a change to firmware defaults. The configuration-dialog screenshots retain the original example configuration.
