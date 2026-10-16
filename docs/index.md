@@ -4,7 +4,7 @@ titleTemplate: :title
 description: "No-code Home Assistant touchscreen controller for supported ESP32 panels. Install from a browser, configure cards from the panel web page, and control your home locally."
 ---
 
-![Basalt on a 7-inch touchscreen: home screen with temperature, clock, and control tiles](/images/home_screen_hero.jpg)
+![Basalt touchscreens showing colourful Home Assistant controls, temperature, weather, and media cards](/images/home_screen_hero.jpg)
 
 # Basalt: No-Code Home Assistant Touchscreen
 
