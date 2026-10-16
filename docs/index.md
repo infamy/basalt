@@ -70,6 +70,7 @@ Compare [screen sizes, image limits, and hardware revisions](/screens/) before o
 
 ## Next Steps
 
-- **[Device](/features/setup)** — install, connect, and open the setup page.
-- **Screen** — [Appearance](/features/appearance), [Display](/settings/display), and [Sleep & Schedule](/settings/sleep).
-- **System** — [System settings](/settings/system), including backups, updates, and device management.
+- **Get started** — [choose a screen](/screens/), [install EspControl](/getting-started/install), and [enable actions](/getting-started/home-assistant-actions).
+- **Configure** — [open device setup](/features/setup), then adjust [Appearance](/features/appearance), [Display](/settings/display), [Sleep & Schedule](/settings/sleep), or [System settings](/settings/system).
+- **Card Types** — [choose controls and information to display](/card-types/).
+- **Reference** — find [common answers](/reference/faq) or [troubleshoot a problem](/getting-started/troubleshooting).
