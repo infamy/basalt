@@ -208,6 +208,7 @@ def check_build(dist):
         'immich/settings-reference': BASE + 'immich/#settings-reference',
         'immich/entities': BASE + 'immich/#home-assistant-entities',
         'immich/add-on': BASE + 'immich/#browser-api-add-on',
+        'getting-started/c6-recovery': BASE + 'getting-started/troubleshooting#a-p4-panel-has-unreliable-wifi',
         'features/backlight': BASE + 'settings/display#backlight',
         'features/rotation': BASE + 'settings/display#rotation',
         'features/language': BASE + 'settings/preferences#language',

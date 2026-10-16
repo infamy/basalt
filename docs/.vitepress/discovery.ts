@@ -13,6 +13,7 @@ export const redirects: Record<string, string> = {
   'immich/settings-reference': `${hostname}immich/#settings-reference`,
   'immich/entities': `${hostname}immich/#home-assistant-entities`,
   'immich/add-on': `${hostname}immich/#browser-api-add-on`,
+  'getting-started/c6-recovery': `${hostname}getting-started/troubleshooting#a-p4-panel-has-unreliable-wifi`,
   'features/backlight': `${hostname}settings/display#backlight`,
   'features/rotation': `${hostname}settings/display#rotation`,
   'features/language': `${hostname}settings/preferences#language`,

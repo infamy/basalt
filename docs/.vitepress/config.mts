@@ -441,7 +441,6 @@ export default defineConfig({
         text: 'Advanced',
         items: [
           { text: 'Manual Setup', link: '/getting-started/manual-esphome-setup' },
-          { text: 'Wifi Issues', link: '/getting-started/c6-recovery' },
         ],
       },
       {
