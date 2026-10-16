@@ -228,6 +228,7 @@ def check_build(dist):
         'features/idle': BASE + 'features/appearance#idle',
         'features/clock-bar': BASE + 'features/appearance#clock-bar',
         'reference/card-capabilities': BASE + 'card-types/',
+        'reference/language-support': BASE + 'settings/preferences#language',
         'reference/request-device-support': BASE + 'screens/',
         'card-types/weather-forecast': BASE + 'card-types/weather#setting-up-a-weather-card',
         'generated/cards/capabilities': BASE + 'card-types/',
