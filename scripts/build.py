@@ -3138,8 +3138,7 @@ def gen_card_contract_h(data):
         cpp_string_array("CARD_CONTRACT_CLIMATE_NUMBER_DISPLAY_MODES", contract_card_option_values(cards, "climate", "number_display")),
         cpp_string_array("CARD_CONTRACT_CLIMATE_TEMPERATURE_STEPS", contract_card_option_values(cards, "climate", "temperature_step")),
         cpp_string_array("CARD_CONTRACT_CLIMATE_PRECISION_VALUES", climate_behavior["precisionValues"]),
-        cpp_string_array("CARD_CONTRACT_WEATHER_FORECAST_PRECISIONS", [value for value in contract_card_option_values(cards, "weather", "weather_mode") if value and value not in ("wind", "rainfall")]),
-        cpp_string_array("CARD_CONTRACT_WEATHER_MODES", contract_card_option_values(cards, "weather", "weather_mode")),
+        cpp_string_array("CARD_CONTRACT_WEATHER_FORECAST_PRECISIONS", [value for value in contract_card_option_values(cards, "weather", "weather_mode") if value and value not in ("wind", "rainfall", "pressure", "humidity", "visibility")]),
         "".join(
             f"constexpr const char *{option_constant_name(name)} = {json.dumps(value)};\n"
             for name, value in option_names.items()
@@ -3290,11 +3289,6 @@ def gen_card_contract_h(data):
         "inline bool card_contract_weather_forecast_precision(const std::string &precision) {\n",
         "  return card_contract_string_in(precision, CARD_CONTRACT_WEATHER_FORECAST_PRECISIONS,\n",
         "    sizeof(CARD_CONTRACT_WEATHER_FORECAST_PRECISIONS) / sizeof(CARD_CONTRACT_WEATHER_FORECAST_PRECISIONS[0]));\n",
-        "}\n",
-        "\n",
-        "inline bool card_contract_weather_mode_valid(const std::string &mode) {\n",
-        "  return card_contract_string_in(mode, CARD_CONTRACT_WEATHER_MODES,\n",
-        "    sizeof(CARD_CONTRACT_WEATHER_MODES) / sizeof(CARD_CONTRACT_WEATHER_MODES[0]));\n",
         "}\n",
         "\n",
         "inline const char *card_contract_cover_command_service(const std::string &mode) {\n",
