@@ -147,6 +147,7 @@ export interface AppState {
   alarmDelayFinalCountdown: number;
   networkTransport: string;
   wifiStrengthPercent: number;
+  clockBarTemperaturePrecision: number;
   temperatureDegreeSymbolOn: boolean;
   subpageChevronsOn: boolean;
   presenceEntity: string;
