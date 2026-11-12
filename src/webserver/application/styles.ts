@@ -124,15 +124,6 @@ export function createWebStyles(dragAnimation: boolean): string {
         ".sp-clock-left-mid{justify-content:center;align-items:flex-start}" +
         ".sp-clock-centered{justify-content:center;align-items:center}" +
         ".sp-forecast-preview{white-space:nowrap;gap:0}" +
-        ".sp-weather-days{position:absolute;inset:var(--btn-pad);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 8px;color:#fff}" +
-        ".sp-weather-days-single{justify-content:center}" +
-        ".sp-weather-days-now{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px}" +
-        ".sp-weather-days-now-row{display:flex;align-items:center;gap:12px}" +
-        ".sp-weather-days-icon{font-size:var(--btn-icon);line-height:1}" +
-        ".sp-weather-days-temp{font-size:var(--btn-icon);line-height:1;font-weight:300}" +
-        ".sp-weather-days-text{font-size:var(--btn-label);line-height:1.25;white-space:nowrap}" +
-        ".sp-weather-days-dim{opacity:.7}" +
-        ".sp-weather-days-col{display:flex;flex-direction:column;align-items:center;gap:4px}" +
         ".sp-btn.sp-rainfall-card>.sp-btn-label{max-height:none}.sp-rainfall-value{display:block;margin-top:.2em}" +
         ".sp-weather-daily-card{font-size:var(--btn-label)}" +
         ".sp-weather-days{display:grid;width:100%;height:100%;min-height:0;align-items:stretch;overflow:hidden;gap:1.25em}" +
