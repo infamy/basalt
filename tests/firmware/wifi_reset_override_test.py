@@ -59,7 +59,7 @@ struct NvsStorage : Storage {
 namespace esphome {
 struct Application {
   uint32_t get_config_version_hash() { return 123; }
-  std::string get_friendly_name() { return "EspControl Test"; }
+  std::string get_friendly_name() { return "Basalt Test"; }
   void feed_wdt() { assert(false && "unexpected retry"); }
 } App;
 void delay(int) {}
@@ -111,7 +111,7 @@ std::string selected_network() {
 }
 int main() {
   assert(espcontrol::reset::ResetBoot{}.get_setup_priority() > esphome::setup_priority::WIFI);
-  esphome::wifi::wifi.ap = {"EspControl Test", "setup-password"};
+  esphome::wifi::wifi.ap = {"Basalt Test", "setup-password"};
   configure_hotspot();
   assert(esphome::wifi::wifi.ap.ssid == "EspControl_f36a");
   assert(esphome::wifi::wifi.ap.password == "setup-password");

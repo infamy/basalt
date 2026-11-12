@@ -52,7 +52,7 @@ int main() {
   EspControlApp app;
   Component &component = app;
   // App.safe_reboot(): every safe hook runs, then shutdown proceeds in
-  // reverse setup order (mDNS AFTER_CONNECTION before EspControl AFTER_WIFI).
+  // reverse setup order (mDNS AFTER_CONNECTION before Basalt AFTER_WIFI).
   component.on_safe_shutdown();
   assert(!app.home_assistant_endpoint_.pending_query);
   assert(app.home_assistant_endpoint_.releases == 1);

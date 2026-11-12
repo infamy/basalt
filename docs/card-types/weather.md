@@ -1,7 +1,7 @@
 ---
 title: "Home Assistant Weather Cards"
 description:
-  How to show current Home Assistant weather conditions, today or tomorrow forecasts, and multi-day forecasts on your EspControl panel.
+  How to show current Home Assistant weather conditions, today or tomorrow forecasts, and multi-day forecasts on your Basalt panel.
 ---
 
 # Weather

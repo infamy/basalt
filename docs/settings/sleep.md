@@ -1,6 +1,6 @@
 ---
 title: "Sleep & Schedule Settings"
-description: Configure EspControl media cover art, screensaver, night schedule, and PIN protection in one guide.
+description: Configure Basalt media cover art, screensaver, night schedule, and PIN protection in one guide.
 ---
 
 # Sleep & Schedule
@@ -96,7 +96,7 @@ The image refreshes when Home Assistant reports an update; the last successful i
 
 #### Photos from Immich
 
-Use [EspControl Immich Companion](/immich/) for photo selection and slideshow timing. Follow [Connect to EspControl](/immich/#connect-to-espcontrol), then use its Home Assistant `image.*` entity as the Camera Entity.
+Use [EspControl Immich Companion](/immich/) for photo selection and slideshow timing. Follow [Connect to Basalt](/immich/#connect-to-espcontrol), then use its Home Assistant `image.*` entity as the Camera Entity.
 
 #### Photo Metadata
 

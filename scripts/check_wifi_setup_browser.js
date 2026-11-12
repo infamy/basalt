@@ -9,7 +9,7 @@ const webStyles = require("./captive_portal_assets").sharedStyles();
 const source = template.replace("/* __ESPCONTROL_WEB_STYLE__ */", webStyles);
 // Keep provisioning behavior intact, allowing removal of unused metadata updates.
 const script = source.match(/<script\b[^>]*>([\s\S]*?)<\/script>/)[1]
-  .replace("document.title=`EspControl WiFi setup`;", "document.title=t.name,document.getElementById(`mac`).innerText=`MAC Address: `+t.mac,document.getElementById(`h1`).innerText=`WiFi Networks: `+t.name;");
+  .replace("document.title=`Basalt WiFi setup`;", "document.title=t.name,document.getElementById(`mac`).innerText=`MAC Address: `+t.mac,document.getElementById(`h1`).innerText=`WiFi Networks: `+t.name;");
 assert.equal(createHash("sha256").update(script).digest("hex"),
   "6e9143fc4bf8cd3c370c03432fc6f94c99ab0380337a9dec0d52372dd034f7d6", "Confirmed captive portal script changed");
 assert.ok(source.includes(webStyles), "Portal must embed the shared webserver stylesheet");
@@ -56,8 +56,8 @@ const names = ["Unifi-Devices", 'Guest & "Family" café', "<img src=x onerror=al
         });
         await page.goto(`http://192.168.4.1/${scenario === "saved" ? "?save" : ""}`);
         await page.waitForLoadState("networkidle");
-        assert.equal(await page.title(), "EspControl WiFi setup");
-        assert.equal(await page.locator(".sp-brand-title").textContent(), "EspControl");
+        assert.equal(await page.title(), "Basalt WiFi setup");
+        assert.equal(await page.locator(".sp-brand-title").textContent(), "Basalt");
         const layout = await page.evaluate(() => ({
           width: document.documentElement.scrollWidth,
           viewport: innerWidth,

@@ -1,6 +1,6 @@
 ---
 title: "Appearance Settings"
-description: Configure EspControl active colour, card style, theme, idle timeout, and clock bar in one guide.
+description: Configure Basalt active colour, card style, theme, idle timeout, and clock bar in one guide.
 ---
 
 # Appearance

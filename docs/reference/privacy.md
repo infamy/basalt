@@ -46,7 +46,7 @@ third-party websites. Those sites have their own terms and privacy practices.
 
 ## The Basalt firmware and device
 
-The firmware does not send your smart-home data to an Basalt server. It
+The firmware does not send your smart-home data to a Basalt server. It
 normally exchanges data directly with your Home Assistant instance over your
 local network, including entity states, names, media information, weather
 data, and commands needed for the cards you configure. Home Assistant and any

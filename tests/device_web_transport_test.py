@@ -23,7 +23,7 @@ class Device(http.server.BaseHTTPRequestHandler):
         state["requests"].append(self.path)
         if state.get("auth") and self.headers.get("Authorization") != "Basic " + base64.b64encode(state["auth"].encode()).decode():
             self.send_response(401)
-            self.send_header("WWW-Authenticate", 'Basic realm="EspControl"')
+            self.send_header("WWW-Authenticate", 'Basic realm="Basalt"')
             self.send_header("Content-Length", "0")
             self.end_headers()
             return
@@ -38,7 +38,7 @@ class Device(http.server.BaseHTTPRequestHandler):
             if state.get("config_changes") and state["config_reads"] > 1:
                 body += b"changed"
         elif self.path == "/":
-            body = b"<html>EspControl editor</html>"
+            body = b"<html>Basalt editor</html>"
         elif self.path == "/events":
             state["streams"] += 1
             uptime = state["streams"] + 100

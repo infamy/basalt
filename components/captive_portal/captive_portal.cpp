@@ -166,7 +166,7 @@ void CaptivePortal::handleRequest(AsyncWebServerRequest *req) {
 #else
   response->addHeader(ESPHOME_F("Content-Encoding"), ESPHOME_F("br"));
 #endif
-  // Match EspControl's web_server_idf response policy for the setup form.
+  // Match Basalt's web_server_idf response policy for the setup form.
   response->addHeader(ESPHOME_F("Cache-Control"), ESPHOME_F("no-store, no-cache, must-revalidate, max-age=0"));
   response->addHeader(ESPHOME_F("Pragma"), ESPHOME_F("no-cache"));
   response->addHeader(ESPHOME_F("Expires"), ESPHOME_F("0"));

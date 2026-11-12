@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a running EspControl device's HTTP and event-stream recovery."""
+"""Validate a running Basalt device's HTTP and event-stream recovery."""
 
 from __future__ import annotations
 
@@ -147,7 +147,7 @@ class NativeMonitor:
 
     async def monitor(self):
         client = self.client_class(self.host, self.port, password=self.password,
-                                   noise_psk=self.noise_psk, client_info="EspControl device test")
+                                   noise_psk=self.noise_psk, client_info="Basalt device test")
 
         async def stopped(expected):
             if not expected and not self.stop_event.is_set():
@@ -219,7 +219,7 @@ def run_suite(args, client=None, monitor=None):
         nonlocal before
         version = json.loads(client.get("/espcontrol/version"))
         if not isinstance(version, dict) or not isinstance(version.get("device_slug"), str) or not version["device_slug"]:
-            raise CheckFailure("Target did not identify an EspControl device profile")
+            raise CheckFailure("Target did not identify a Basalt device profile")
         report["device"] = {key: version.get(key) for key in
                             ("project_name", "project_version", "firmware_version", "device_slug")}
         before = client.get("/api/v1/config")

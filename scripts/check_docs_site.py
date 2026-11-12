@@ -13,7 +13,7 @@ from urllib.request import urlopen
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = 'https://jtenniswood.github.io/espcontrol/'
+BASE = 'https://basalt.meshmeld.com/'
 
 
 def normalized(value):

@@ -70,7 +70,7 @@ Compare [screen sizes, image limits, and hardware revisions](/screens/) before o
 
 ## Next Steps
 
-- **Get started** — [choose a screen](/screens/), [install EspControl](/getting-started/install), and [enable actions](/getting-started/home-assistant-actions).
+- **Get started** — [choose a screen](/screens/), [install Basalt](/getting-started/install), and [enable actions](/getting-started/home-assistant-actions).
 - **Configure** — [open device setup](/features/setup), then adjust [Appearance](/features/appearance), [Display](/settings/display), [Sleep & Schedule](/settings/sleep), or [System settings](/settings/system).
 - **Card Types** — [choose controls and information to display](/card-types/).
 - **Reference** — find [common answers](/reference/faq) or [troubleshoot a problem](/getting-started/troubleshooting).

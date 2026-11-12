@@ -1,6 +1,6 @@
 ---
 title: "System Settings"
-description: Configure EspControl language, time, temperature units, device naming, backups, firmware, Home Assistant connections, and reset controls in one guide.
+description: Configure Basalt language, time, temperature units, device naming, backups, firmware, Home Assistant connections, and reset controls in one guide.
 ---
 
 # System Settings
@@ -119,7 +119,7 @@ Updates preserve saved settings. An **Update available** badge on the collapsed 
 
 ### Stable Releases, Development Builds, and Custom Firmware
 
-Check the [release list](https://github.com/jtenniswood/espcontrol/releases) and the matching assets for your panel. Documentation follows the current source, so a documented option may require firmware newer than your installed release.
+Check the [release list](https://github.com/infamy/basalt/releases) and the matching assets for your panel. Documentation follows the current source, so a documented option may require firmware newer than your installed release.
 
 Built-in updates install released binaries. For custom ESPHome YAML, turn **Auto Update** off and use [manual ESPHome updates](/getting-started/manual-esphome-setup). Ethernet builds with `disable_updates: "true"` also use ESPHome OTA or USB.
 
@@ -160,7 +160,7 @@ For HTTPS, use a host matching its certificate. A self-signed certificate must b
 
 ## Battery
 
-Some Guition JC8012P4A1 (10.1") units ship with an IP5306-based battery add-on board. EspControl can show a battery icon in the top bar for these units, but the wiring (GPIO52, post-divider voltage range) is based on community and third-party BSP reports and has **not** been confirmed by the firmware maintainer. It may not work, or may read incorrectly, on every unit.
+Some Guition JC8012P4A1 (10.1") units ship with an IP5306-based battery add-on board. Basalt can show a battery icon in the top bar for these units, but the wiring (GPIO52, post-divider voltage range) is based on community and third-party BSP reports and has **not** been confirmed by the firmware maintainer. It may not work, or may read incorrectly, on every unit.
 
 Because of this, the feature is off by default and only appears in **System > Battery** on JC8012P4A1 panels.
 

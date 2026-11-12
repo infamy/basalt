@@ -7,7 +7,7 @@
 # =============================================================================
 
 substitutions:
-  cover_art_placeholder_file: "https://raw.githubusercontent.com/jtenniswood/espcontrol/main/common/assets/cover_art_placeholder.svg"
+  cover_art_placeholder_file: "https://raw.githubusercontent.com/infamy/basalt/main/common/assets/cover_art_placeholder.svg"
   device_slug: "guition-esp32-p4-jc4880p443-v3"
   firmware_manifest_slug: "guition-esp32-p4-jc4880p443-v3"
   firmware_version: "dev"

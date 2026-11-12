@@ -1,6 +1,6 @@
 ---
 title: "Home Assistant Settings"
-description: Check EspControl camera and artwork connections, or configure a manual Home Assistant image endpoint.
+description: Check Basalt camera and artwork connections, or configure a manual Home Assistant image endpoint.
 ---
 
 # Home Assistant Settings

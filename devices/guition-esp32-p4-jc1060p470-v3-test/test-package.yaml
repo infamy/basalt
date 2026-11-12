@@ -5,10 +5,10 @@ packages:
 
 substitutions:
   name: "espctl-7v3-test"
-  friendly_name: "EspControl 7inch V3 Test"
+  friendly_name: "Basalt 7inch V3 Test"
   firmware_version: "dev-7v3-test"
   espcontrol_component_ref: "test-jc1060p470-v3"
-  cover_art_placeholder_file: "https://raw.githubusercontent.com/jtenniswood/espcontrol/${espcontrol_component_ref}/common/assets/cover_art_placeholder.svg"
+  cover_art_placeholder_file: "https://raw.githubusercontent.com/infamy/basalt/${espcontrol_component_ref}/common/assets/cover_art_placeholder.svg"
   # Reuse V2's layout identity, but never its release/update channel.
   firmware_manifest_slug: "guition-esp32-p4-jc1060p470-v3-test"
   disable_updates: "true"
@@ -32,7 +32,7 @@ external_components:
 web_server:
   ota: false
   # Manual builds need the full branch editor, not the release-manifest bridge.
-  js_url: "https://cdn.jsdelivr.net/gh/jtenniswood/espcontrol@${espcontrol_component_ref}/docs/public/webserver/embedded/www.js?device=${device_slug}&v=${firmware_version}"
+  js_url: "https://cdn.jsdelivr.net/gh/infamy/basalt@${espcontrol_component_ref}/docs/public/webserver/embedded/www.js?device=${device_slug}&v=${firmware_version}"
 
 esphome:
   min_version: 2026.10.2

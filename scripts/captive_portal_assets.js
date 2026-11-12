@@ -49,7 +49,7 @@ function pageHeader(filename, symbol, styles) {
   const array = bytes => Array.from({ length: Math.ceil(bytes.length / 16) }, (_, i) =>
     "    " + [...bytes.subarray(i * 16, (i + 1) * 16)].map(b => `0x${b.toString(16).padStart(2, "0")}`).join(", ") + ","
   ).join("\n");
-  return `// Generated from ${filename} and EspControl web styles; run python3 scripts/build.py portal.\n` +
+  return `// Generated from ${filename} and Basalt web styles; run python3 scripts/build.py portal.\n` +
     "// Upstream: ESPHome 2026.9.1; see README.md and PORTAL_LICENSE.\n" +
     '#pragma once\n#include "esphome/core/hal.h"\nnamespace esphome::captive_portal {\n#ifdef USE_CAPTIVE_PORTAL_GZIP\n' +
     `constexpr uint8_t ${symbol}[] PROGMEM = {\n${array(encodings[0])}\n};\n#else\n` +

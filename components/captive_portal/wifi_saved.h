@@ -1,4 +1,4 @@
-// Generated from wifi_saved.html and EspControl web styles; run python3 scripts/build.py portal.
+// Generated from wifi_saved.html and Basalt web styles; run python3 scripts/build.py portal.
 // Upstream: ESPHome 2026.9.1; see README.md and PORTAL_LICENSE.
 #pragma once
 #include "esphome/core/hal.h"

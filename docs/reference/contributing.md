@@ -1,16 +1,16 @@
 ---
 title: Contributing
 description:
-  How to get started if you want to contribute fixes, card types, firmware changes, or web configurator improvements to EspControl.
+  How to get started if you want to contribute fixes, card types, firmware changes, or web configurator improvements to Basalt.
 ---
 
 # Contributing
 
-Thanks for wanting to help improve EspControl.
+Thanks for wanting to help improve Basalt.
 
 ## Before Opening a Pull Request
 
-- Check the existing [issues](https://github.com/jtenniswood/espcontrol/issues)
+- Check the existing [issues](https://github.com/infamy/basalt/issues)
   to see if the change is already being discussed.
 - Keep the change focused so it is easier to test.
 - Run `npm run prepare:ci` before submitting code changes, then review and commit

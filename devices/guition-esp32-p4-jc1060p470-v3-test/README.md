@@ -94,7 +94,7 @@ Use the pinned ESPHome version. Keep credentials in your local `secrets.yaml`:
 ```yaml
 substitutions:
   name: espctl-7v3-test
-  friendly_name: EspControl 7inch V3 Test
+  friendly_name: Basalt 7inch V3 Test
   firmware_version: dev-7v3-COMMIT
   # Replace COMMIT below and above with the full commit being tested.
   espcontrol_component_ref: COMMIT
@@ -105,12 +105,12 @@ wifi:
 
 packages:
   api_encryption:
-    url: https://github.com/jtenniswood/espcontrol/
+    url: https://github.com/infamy/basalt/
     ref: COMMIT
     file: common/addon/api_encryption_dynamic.yaml
     refresh: 1s
   setup:
-    url: https://github.com/jtenniswood/espcontrol/
+    url: https://github.com/infamy/basalt/
     ref: COMMIT
     file: devices/guition-esp32-p4-jc1060p470-v3-test/test-package.yaml
     refresh: 1s

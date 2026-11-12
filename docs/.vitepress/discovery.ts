@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { MarkdownRenderer } from 'vitepress'
 
-export const hostname = 'https://jtenniswood.github.io/espcontrol/'
+export const hostname = 'https://basalt.meshmeld.com/'
 
 // GitHub Pages cannot configure HTTP redirects. These HTML fallbacks preserve
 // published links while keeping retired pages out of search and the sitemap.
@@ -174,7 +174,7 @@ if (typeof anchor === 'string') {
     await mkdir(join(file, '..'), { recursive: true })
     await writeFile(file, `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<title>Page moved | EspControl</title>
+<title>Page moved | Basalt</title>
 <meta name="robots" content="noindex,follow">
 <link rel="canonical" href="${destination.split('#')[0]}">
 ${fragmentRedirect}

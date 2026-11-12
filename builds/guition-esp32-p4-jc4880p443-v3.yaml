@@ -9,7 +9,7 @@
 substitutions:
   cover_art_placeholder_file: "../common/assets/cover_art_placeholder.svg"
   name: "espcontrol-jc4880p443-v3"
-  friendly_name: "EspControl 4inch V3"
+  friendly_name: "Basalt 4inch V3"
   espcontrol_component_url: "file:///config"
   mdi_font_file: "/config/common/assets/fonts/materialdesignicons-webfont-7.4.47.ttf"
   espcontrol_component_ref: "HEAD"

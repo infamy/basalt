@@ -1,6 +1,6 @@
 ---
 title: Home Assistant Touchscreen Setup and Control Guides
-description: Set up an Basalt room panel, media remote, or camera display with practical guides and clear hardware requirements.
+description: Set up a Basalt room panel, media remote, or camera display with practical guides and clear hardware requirements.
 ---
 
 # What Would You Like to Control?

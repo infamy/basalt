@@ -13,7 +13,7 @@ clears counts for omitted authority/additional records when replying to EDNS que
 `portal.html` was decoded from the gzip array in that version's `captive_index.h`;
 its original SHA-256 is
 `98ff9b7ed031268f7dd6483d90b7f0eed6e4cf689cdb14fe4eb5a59b22d8ad37`.
-The layout now uses EspControl's webserver cards, labels, inputs and buttons.
+The layout now uses Basalt's webserver cards, labels, inputs and buttons.
 `python3 scripts/build.py portal` extracts the relevant settings styles from
 `src/webserver/application/styles.ts` and embeds them at the template's style
 marker. It produces gzip and Brotli versions of `captive_index.h` and `wifi_saved.h`.
@@ -23,10 +23,10 @@ The setup page shows a small Available Networks heading above the network list,
 SSID/password fields and Save button.
 Device/MAC headings and the OTA upload panel are omitted. The upstream script
 retains provisioning behavior, prevents default `href="#"` navigation when
-choosing a network, omits updates to the removed headings, and keeps the page title as EspControl WiFi setup. Browser coverage
+choosing a network, omits updates to the removed headings, and keeps the page title as Basalt WiFi setup. Browser coverage
 checks these focused script changes, shared styles, narrow layouts and form behavior.
 
-Page and scan responses use EspControl's no-cache policy. Operating-system
+Page and scan responses use Basalt's no-cache policy. Operating-system
 probes receive the standard HTTP 200 portal page; no custom redirects are added.
 Credential persistence, scan filtering and the `/config.json`, `/wifisave` and
 `/update` endpoints retain ESPHome's behavior. `/wifisave` returns a locally

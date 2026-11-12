@@ -1,6 +1,6 @@
 ---
 title: "Display Settings"
-description: Configure EspControl backlight brightness and screen rotation in one guide.
+description: Configure Basalt backlight brightness and screen rotation in one guide.
 ---
 
 # Display
