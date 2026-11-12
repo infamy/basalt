@@ -388,8 +388,7 @@
         {"name": "visibility_forecast", "config": {"entity": "weather.example", "precision": "visibility"}},
         { "name": "today", "config": { "entity": "weather.example", "precision": "today" }, "lifecycle": { "subscriptions": ["action_response"], "actions": ["modal"], "modalOwner": "weather" } },
         { "name": "tomorrow", "config": { "entity": "weather.example", "precision": "tomorrow" }, "lifecycle": { "subscriptions": ["action_response"], "actions": ["modal"], "modalOwner": "weather" } },
-        { "name": "daily", "config": { "entity": "weather.example", "precision": "daily" }, "lifecycle": { "subscriptions": ["action_response"], "actions": ["modal"], "modalOwner": "weather" } },
-        { "name": "days", "config": { "entity": "weather.example", "precision": "days" }, "lifecycle": { "subscriptions": ["state", "attributes", "action_response"], "actions": ["none"], "modalOwner": "none" } }
+        { "name": "daily", "config": { "entity": "weather.example", "precision": "daily" }, "lifecycle": { "subscriptions": ["action_response"], "actions": ["modal"], "modalOwner": "weather" } }
       ]
     },
     "image": {
