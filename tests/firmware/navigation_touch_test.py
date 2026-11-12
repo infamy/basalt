@@ -61,6 +61,7 @@ bool *media_fast_press_slots() { return slots; }
 constexpr int MAX_GRID_SLOTS = 25;
 int opened = 0, sent = 0;
 void send_media_playback_action(const std::string &, const std::string &) { ++sent; }
+void dual_switch_handle_press(lv_obj_t *) {}  // Basalt dual switch cards handle their own halves
 void handle_button_click(const std::string &, int, lv_obj_t *b) {
   assert(pointer.consumed && !b->pressed); ++opened;
 }

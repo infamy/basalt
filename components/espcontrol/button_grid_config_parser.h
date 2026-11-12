@@ -1223,6 +1223,8 @@ inline std::string normalize_saved_config_security_options(
 
 inline void normalize_saved_config_weather_fields(ParsedCfg &p, bool was_legacy_forecast) {
   if (was_legacy_forecast && p.label == "Weather") p.label.clear();
+  // Earlier Basalt builds saved the multi-day forecast as "days".
+  if (p.precision == "days") p.precision = "daily";
   if (p.precision != "wind" && p.precision != "rainfall" && !weather_metric_mode(p.precision) && !card_runtime_weather_forecast_precision(p.precision)) p.precision.clear();
   if (!weather_wind_uses_sensors(p)) p.sensor.clear();
 }

@@ -283,5 +283,20 @@
       "precision": "temperature",
       "options": "temperature_source=forecast"
     }
+  },
+  {
+    "name": "earlier Basalt days forecast becomes daily",
+    "input": "weather.home;;Auto;Auto;;;weather;days;",
+    "expected": {
+      "entity": "weather.home",
+      "label": "",
+      "icon": "Auto",
+      "icon_on": "Auto",
+      "sensor": "",
+      "unit": "",
+      "type": "weather",
+      "precision": "daily",
+      "options": ""
+    }
   }
 ]

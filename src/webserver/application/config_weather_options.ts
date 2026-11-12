@@ -36,6 +36,8 @@ export function createConfigWeatherOptionsFeature(
 
     function normalizeWeatherCardMode(this: any, mode?: any) {
         mode = String(mode || "");
+        // Earlier Basalt builds saved the multi-day forecast as "days".
+        if (mode === "days") mode = "daily";
         return weatherModeOptionValues().indexOf(mode) >= 0 ? mode : "";
     }
 
