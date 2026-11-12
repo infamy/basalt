@@ -6726,7 +6726,7 @@ async function assertHostedCompatibility(browser) {
   const firmwareBody = "test firmware download";
   let releaseDownload;
   const downloadReady = new Promise(resolve => { releaseDownload = resolve; });
-  await context.route("https://jtenniswood.github.io/**/*.ota.bin", async route => {
+  await context.route("https://basalt.meshmeld.com/**/*.ota.bin", async route => {
     await downloadReady;
     return route.fulfill({
       status: 200,
@@ -6807,7 +6807,7 @@ async function assertFirmwareRetryFeedback(browser) {
   for (const action of ["check", "install", "check_then_install"]) {
     const context = await browser.newContext({ viewport: testCase.viewport });
     await installRoutes(context, testCase.slug, { nativeState: nativeConfigState(testCase.slug) });
-    await context.route("https://jtenniswood.github.io/**/*.ota.bin", route => route.fulfill({
+    await context.route("https://basalt.meshmeld.com/**/*.ota.bin", route => route.fulfill({
       status: 503, headers: { "Access-Control-Allow-Origin": "*" }, body: "Unavailable",
     }));
     const page = await context.newPage();
