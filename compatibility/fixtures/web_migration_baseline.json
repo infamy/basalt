@@ -52,7 +52,7 @@
       "timezone": "Europe/London (GMT+0)", "temperatureUnit": "°F", "language": "en", "clockFormat": "12h",
       "hasNtpServer1": false, "hasNtpServer2": false, "hasNtpServer3": false,
       "ntpServer1": "pool.ntp.org", "ntpServer2": "time.nist.gov", "ntpServer3": "time.google.com",
-      "screensaverMode": "disabled", "presenceSensorEntity": "", "screensaverCameraEntity": "", "screensaverMetadataEntity": "", "metadataOverlay": false, "screensaverCameraImageMode": "Fit", "screensaverCameraDimming": 0, "mediaPlayerSleepPrevention": true,
+      "screensaverMode": "disabled", "cameraMotionSensitivity": 50, "presenceSensorEntity": "", "screensaverCameraEntity": "", "screensaverMetadataEntity": "", "metadataOverlay": false, "screensaverCameraImageMode": "Fit", "screensaverCameraDimming": 0, "mediaPlayerSleepPrevention": true,
       "mediaPlayerSleepPreventionEntity": "", "coverArtScreensaver": false, "coverArtMediaPlayerEntity": "",
       "coverArtSecondaryMediaPlayerEntity": "", "coverArtPlaybackControl": true,
       "coverArtAttributeConditions": "", "coverArtDelay": 10, "coverArtTrackOverlayDuration": 5,
