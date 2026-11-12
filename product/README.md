@@ -7,10 +7,6 @@ profile in [`v2/`](v2/) while preserving the existing generated output.
 Generators and validators resolve their card and device inputs through this
 model, so later migrations change one controlled entry point.
 
-The hard internal edit/rebuild/check contract lives in
-[`dev-docs/source-of-truth.md`](../dev-docs/source-of-truth.md). Use that page
-when deciding what to edit and what must be regenerated.
-
 ## Authored Product Sources
 
 Edit these files when changing product behavior or supported hardware:
@@ -73,6 +69,16 @@ generated output.
 `python3 scripts/check_product_model_v2.py` proves that the composed model is
 byte-for-byte equivalent to the generated card contract and device catalogue,
 and rejects an incomplete card or device source set.
+
+## Firmware translations
+
+`v2/translations/strings.en.txt` defines firmware display strings; every language
+file must contain the same keys. Keys starting with `label_` are available only
+through `espcontrol_i18n_key(...)`: they are excluded from English-text lookup
+so a matching Home Assistant name or option is not translated as a card label.
+The firmware recognizes editor-generated English defaults for Wi-Fi sharing,
+preset subpage categories and alarm actions in their corresponding card context;
+other custom labels remain unchanged.
 
 ## Generated Outputs
 

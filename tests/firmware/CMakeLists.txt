@@ -5,10 +5,86 @@ enable_testing()
 include(CheckCXXSourceCompiles)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
+add_test(NAME navigation_touch_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/navigation_touch_test.py)
+
+add_executable(dpi_timing_test dpi_timing_test.cpp)
+target_compile_features(dpi_timing_test PRIVATE cxx_std_17)
+target_compile_options(dpi_timing_test PRIVATE -Wall -Wextra -Werror -UNDEBUG)
+target_include_directories(dpi_timing_test PRIVATE ../../components/mipi_dsi)
+add_test(NAME dpi_timing_test COMMAND dpi_timing_test)
+add_test(NAME p4_pipeline_runtime_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/p4_pipeline_runtime_test.py)
+add_test(NAME mipi_dsi_draw_failure_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/mipi_dsi_draw_failure_test.py)
+
+add_test(NAME gsl3680_startup_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/gsl3680_startup_test.py)
+
+add_test(NAME world_clock_psram_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/world_clock_psram_test.py)
+
 add_executable(foundation_test foundation_test.cpp)
 target_compile_features(foundation_test PRIVATE cxx_std_17)
 target_compile_options(foundation_test PRIVATE -Wall -Wextra -Werror)
 add_test(NAME foundation_test COMMAND foundation_test)
+
+add_executable(continuous_corners_test continuous_corners_test.cpp)
+target_compile_features(continuous_corners_test PRIVATE cxx_std_17)
+target_compile_options(continuous_corners_test PRIVATE -Wall -Wextra -Werror)
+add_test(NAME continuous_corners_test COMMAND continuous_corners_test)
+add_test(NAME card_curve_default_boot_test COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/card_curve_default_boot_test.py)
+add_test(NAME card_curve_button_theme_test COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/card_curve_button_theme_test.py)
+add_test(NAME network_status_corners_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/network_status_corners_test.py)
+
+add_test(NAME option_select_dispatch_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/option_select_dispatch_test.py)
+
+add_executable(theme_palette_test theme_palette_test.cpp)
+target_compile_features(theme_palette_test PRIVATE cxx_std_17)
+target_compile_options(theme_palette_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(theme_palette_test PRIVATE ../../components/espcontrol)
+add_test(NAME theme_palette_test COMMAND theme_palette_test)
+
+add_executable(theme_settings_test theme_settings_test.cpp)
+target_compile_features(theme_settings_test PRIVATE cxx_std_17)
+target_compile_options(theme_settings_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(theme_settings_test PRIVATE ../../components/espcontrol)
+add_test(NAME theme_settings_test COMMAND theme_settings_test)
+
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/theme_modal_adapter.h
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/generate_theme_modal_test.py
+    --header ${CMAKE_CURRENT_SOURCE_DIR}/../../components/espcontrol/button_grid_modal.h
+    --output ${CMAKE_CURRENT_BINARY_DIR}/theme_modal_adapter.h
+  DEPENDS generate_theme_modal_test.py ../../components/espcontrol/button_grid_modal.h
+    ../../components/espcontrol/button_grid_subscriptions.h
+    ../../components/espcontrol/button_grid_media.h
+    ../../components/espcontrol/card_availability.h
+  VERBATIM)
+add_executable(theme_runtime_tree_test theme_runtime_tree_test.cpp
+  ${CMAKE_CURRENT_BINARY_DIR}/theme_modal_adapter.h)
+target_compile_features(theme_runtime_tree_test PRIVATE cxx_std_17)
+target_compile_options(theme_runtime_tree_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(theme_runtime_tree_test PRIVATE ../../components/espcontrol
+  ${CMAKE_CURRENT_BINARY_DIR})
+add_test(NAME theme_runtime_tree_test COMMAND theme_runtime_tree_test)
+add_test(NAME option_select_live_options_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/option_select_live_options_test.py)
+
+add_test(NAME theme_refresh_contract_test COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/theme_refresh_contract_test.py)
 
 add_executable(digest_auth_policy_test digest_auth_policy_test.cpp)
 target_compile_features(digest_auth_policy_test PRIVATE cxx_std_17)
@@ -16,9 +92,23 @@ target_compile_options(digest_auth_policy_test PRIVATE -Wall -Wextra -Werror)
 target_include_directories(digest_auth_policy_test PRIVATE ../../components/web_server_idf)
 add_test(NAME digest_auth_policy_test COMMAND digest_auth_policy_test)
 
+add_test(NAME multipart_header_fragments_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/multipart_header_fragments_test.py)
+add_test(NAME multipart_upload_completion_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/multipart_upload_completion_test.py)
+
 add_test(NAME web_ota_guard_test COMMAND
   ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/web_ota_guard_test.py)
+add_test(NAME web_event_source_lifecycle_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/web_event_source_lifecycle_test.py)
+
+add_test(NAME option_select_values_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/option_select_values_test.py)
 
 add_executable(button_grid_foundations_test button_grid_foundations_test.cpp)
 target_compile_features(button_grid_foundations_test PRIVATE cxx_std_17)
@@ -28,6 +118,15 @@ target_include_directories(button_grid_foundations_test PRIVATE
   ../../components/espcontrol
 )
 add_test(NAME button_grid_foundations_test COMMAND button_grid_foundations_test)
+add_test(NAME subpage_names_psram_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/subpage_names_psram_test.py)
+
+add_test(NAME local_sensor_lifetime_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/local_sensor_lifetime_test.py)
+add_test(NAME card_colour_rendering_test COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/card_colour_rendering_test.py ${CMAKE_CXX_COMPILER})
 
 add_executable(media_display_text_test media_display_text_test.cpp)
 target_compile_features(media_display_text_test PRIVATE cxx_std_17)
@@ -36,6 +135,8 @@ target_include_directories(media_display_text_test PRIVATE stubs ../../component
 add_test(NAME media_display_text_test COMMAND media_display_text_test)
 add_test(NAME media_display_integration_test COMMAND ${Python3_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/media_display_integration_test.py ${CMAKE_CXX_COMPILER})
+add_test(NAME compact_landscape_controls_test COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/compact_landscape_controls_test.py ${CMAKE_CXX_COMPILER})
 
 add_executable(grid_navigation_service_test
   grid_navigation_service_test.cpp
@@ -64,8 +165,12 @@ target_compile_features(guest_wifi_state_test PRIVATE cxx_std_17)
 target_compile_options(guest_wifi_state_test PRIVATE -Wall -Wextra -Werror)
 target_include_directories(guest_wifi_state_test PRIVATE ../../components/espcontrol)
 add_test(NAME guest_wifi_state_test COMMAND guest_wifi_state_test)
+add_test(NAME local_sensor_invalid_values_test COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/local_sensor_invalid_values_test.py ${CMAKE_CXX_COMPILER})
 add_test(NAME guest_wifi_lifecycle_test COMMAND ${Python3_EXECUTABLE}
   ${CMAKE_CURRENT_SOURCE_DIR}/guest_wifi_lifecycle_test.py ${CMAKE_CXX_COMPILER})
+add_test(NAME webhook_log_secrets_test COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/webhook_log_secrets_test.py ${CMAKE_CXX_COMPILER})
 
 add_executable(wifi_qr_codec_test wifi_qr_codec_test.cpp)
 target_compile_features(wifi_qr_codec_test PRIVATE cxx_std_17)
@@ -113,6 +218,28 @@ target_compile_features(media_volume_capability_test PRIVATE cxx_std_17)
 target_compile_options(media_volume_capability_test PRIVATE -Wall -Wextra -Werror)
 target_include_directories(media_volume_capability_test PRIVATE ../../components/espcontrol)
 add_test(NAME media_volume_capability_test COMMAND media_volume_capability_test)
+
+add_test(NAME media_power_override_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/media_power_override_test.py)
+add_test(NAME media_playback_pool_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/media_playback_pool_test.py)
+add_test(NAME weather_forecast_queue_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/weather_forecast_queue_test.py)
+
+add_executable(media_control_tabs_test media_control_tabs_test.cpp)
+target_compile_features(media_control_tabs_test PRIVATE cxx_std_17)
+target_compile_options(media_control_tabs_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(media_control_tabs_test PRIVATE ../../components/espcontrol)
+add_test(NAME media_control_tabs_test COMMAND media_control_tabs_test)
+add_test(NAME media_control_tabs_runtime_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/media_control_tabs_runtime_test.py)
+add_test(NAME media_speaker_volume_event_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/media_speaker_volume_event_test.py)
 
 add_executable(media_power_capability_test media_power_capability_test.cpp)
 target_compile_features(media_power_capability_test PRIVATE cxx_std_17)
@@ -257,6 +384,19 @@ target_compile_options(panel_config_storage_backend_test PRIVATE -Wall -Wextra -
 target_include_directories(panel_config_storage_backend_test PRIVATE ../../components/espcontrol)
 add_test(NAME panel_config_storage_backend_test COMMAND panel_config_storage_backend_test)
 
+add_executable(panel_config_storage_migration_test
+  panel_config_storage_migration_test.cpp
+  ../../components/espcontrol/panel_config_espidf_storage.cpp
+  ../../components/espcontrol/configuration_store.cpp
+  ../../components/espcontrol/configuration_service.cpp
+)
+target_compile_features(panel_config_storage_migration_test PRIVATE cxx_std_17)
+target_compile_options(panel_config_storage_migration_test PRIVATE -Wall -Wextra -Werror -UNDEBUG)
+target_compile_definitions(panel_config_storage_migration_test PRIVATE USE_ESP32)
+target_include_directories(panel_config_storage_migration_test PRIVATE
+  panel_config_storage_stubs ../../components/espcontrol)
+add_test(NAME panel_config_storage_migration_test COMMAND panel_config_storage_migration_test)
+
 add_executable(panel_config_storage_selection_test
   panel_config_storage_selection_test.cpp)
 target_compile_features(panel_config_storage_selection_test PRIVATE cxx_std_17)
@@ -331,6 +471,19 @@ target_compile_options(bmp_stream_test PRIVATE -Wall -Wextra -Werror)
 target_include_directories(bmp_stream_test PRIVATE ../../components/artwork_image)
 add_test(NAME bmp_stream_test COMMAND bmp_stream_test)
 
+add_executable(gif_player_test gif_player_test.cpp)
+target_compile_features(gif_player_test PRIVATE cxx_std_17)
+target_compile_options(gif_player_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(gif_player_test PRIVATE ../../components/artwork_image)
+target_compile_definitions(gif_player_test PRIVATE GIF_FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/fixtures/gif")
+add_test(NAME gif_player_test COMMAND gif_player_test)
+add_test(NAME gif_runtime_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/gif_runtime_test.py)
+add_test(NAME p4_gif_transfer_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/p4_gif_transfer_test.py)
+
 add_executable(p4_scaling_test p4_scaling_test.cpp)
 target_compile_features(p4_scaling_test PRIVATE cxx_std_17)
 target_compile_options(p4_scaling_test PRIVATE -Wall -Wextra -Werror)
@@ -342,6 +495,10 @@ target_compile_features(image_pipeline_policy_test PRIVATE cxx_std_17)
 target_compile_options(image_pipeline_policy_test PRIVATE -Wall -Wextra -Werror)
 target_include_directories(image_pipeline_policy_test PRIVATE ../../components/artwork_image)
 add_test(NAME image_pipeline_policy_test COMMAND image_pipeline_policy_test)
+
+add_test(NAME climate_pending_temperature_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/climate_pending_temperature_test.py)
 
 set(CLIMATE_SUBSCRIPTION_TEST_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/climate_subscription_runtime_test.cpp)
 add_custom_command(
@@ -369,6 +526,9 @@ add_test(NAME display_schedule_test COMMAND
 add_test(NAME cover_art_activation_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cover_art_activation_test.py
   --compiler ${CMAKE_CXX_COMPILER})
+add_test(NAME cover_art_rotation_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cover_art_rotation_test.py
+  --compiler ${CMAKE_CXX_COMPILER})
 add_test(NAME presence_transition_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/presence_transition_test.py)
 add_executable(camera_motion_policy_test camera_motion_policy_test.cpp)
@@ -378,15 +538,12 @@ target_include_directories(camera_motion_policy_test PRIVATE ../../components/ca
 add_test(NAME camera_motion_policy_test COMMAND camera_motion_policy_test)
 add_test(NAME camera_motion_wiring_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/camera_motion_wiring_test.py)
-add_executable(weather_days_forecast_test weather_days_forecast_test.cpp)
-target_compile_features(weather_days_forecast_test PRIVATE cxx_std_17)
-target_compile_options(weather_days_forecast_test PRIVATE -Wall -Wextra -Werror)
-target_include_directories(weather_days_forecast_test PRIVATE ../../components/espcontrol)
-add_test(NAME weather_days_forecast_test COMMAND weather_days_forecast_test)
 add_test(NAME ha_reconnect_recovery_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/ha_reconnect_recovery_test.py)
 add_test(NAME cover_art_metadata_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cover_art_metadata_test.py ${CMAKE_CXX_COMPILER})
+add_test(NAME cover_art_pending_reads_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cover_art_pending_reads_test.py ${CMAKE_CXX_COMPILER})
 add_executable(rgb565_scaler_test rgb565_scaler_test.cpp)
 target_compile_features(rgb565_scaler_test PRIVATE cxx_std_17)
 target_compile_options(rgb565_scaler_test PRIVATE -Wall -Wextra -Werror)
@@ -400,6 +557,12 @@ target_include_directories(scanline_resampler_test PRIVATE ../../components/artw
 add_test(NAME scanline_resampler_test COMMAND scanline_resampler_test)
 add_test(NAME image_resize_integration_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/image_resize_integration_test.py ${CMAKE_CXX_COMPILER})
+add_test(NAME camera_expanded_image_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/camera_expanded_image_test.py ${CMAKE_CXX_COMPILER})
+add_test(NAME p4_jpeg_memory_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/p4_jpeg_memory_test.py ${CMAKE_CXX_COMPILER})
+add_test(NAME artwork_release_memory_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/artwork_release_memory_test.py ${CMAKE_CXX_COMPILER})
 
 file(GLOB SAVED_CONFIG_FIXTURES
   CONFIGURE_DEPENDS
@@ -431,6 +594,10 @@ target_include_directories(saved_config_parser_test PRIVATE
   ../../components/espcontrol
 )
 add_test(NAME saved_config_parser_test COMMAND saved_config_parser_test)
+
+add_test(NAME climate_option_values_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/climate_option_values_test.py)
 
 set(CLIMATE_UPDATE_TEST_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/climate_update_test.cpp)
 add_custom_command(
@@ -467,6 +634,12 @@ target_include_directories(reset_policy_test PRIVATE ../../components/espcontrol
 add_test(NAME reset_policy_test COMMAND reset_policy_test)
 add_test(NAME reset_ota_wrapper_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/reset_ota_wrapper_test.py)
+add_test(NAME wifi_reset_override_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/wifi_reset_override_test.py)
+add_test(NAME wifi_reset_boot_codegen_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/wifi_reset_boot_codegen_test.py)
+add_test(NAME wifi_setup_package_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/wifi_setup_package_test.py)
 add_executable(panel_identity_test panel_identity_test.cpp)
 target_compile_features(panel_identity_test PRIVATE cxx_std_17)
 target_compile_options(panel_identity_test PRIVATE -Wall -Wextra -Werror)
@@ -478,6 +651,13 @@ target_compile_features(panel_identity_runtime_test PRIVATE cxx_std_17)
 target_compile_options(panel_identity_runtime_test PRIVATE -Wall -Wextra -Werror)
 target_include_directories(panel_identity_runtime_test PRIVATE panel_identity_stubs ../../components/espcontrol)
 add_test(NAME panel_identity_runtime_test COMMAND panel_identity_runtime_test)
+
+add_executable(panel_identity_runtime_beta_test panel_identity_runtime_test.cpp ../../components/espcontrol/panel_identity.cpp)
+target_compile_features(panel_identity_runtime_beta_test PRIVATE cxx_std_17)
+target_compile_options(panel_identity_runtime_beta_test PRIVATE -Wall -Wextra -Werror)
+target_compile_definitions(panel_identity_runtime_beta_test PRIVATE TEST_ESPHOME_MINOR=10)
+target_include_directories(panel_identity_runtime_beta_test PRIVATE panel_identity_stubs ../../components/espcontrol)
+add_test(NAME panel_identity_runtime_beta_test COMMAND panel_identity_runtime_beta_test)
 
 set(CLOCK_BAR_TITLE_TEST_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/clock_bar_title_test.cpp)
 add_custom_command(
@@ -509,6 +689,8 @@ add_test(NAME timer_subpage_cleanup_test
 
 add_test(NAME cover_confirmation_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cover_confirmation_test.py ${CMAKE_CXX_COMPILER})
+add_test(NAME cover_stop_failure_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/cover_stop_failure_test.py ${CMAKE_CXX_COMPILER})
 
 add_test(NAME camera_feedback_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/camera_feedback_test.py ${CMAKE_CXX_COMPILER})
@@ -516,6 +698,11 @@ add_test(NAME camera_feedback_test COMMAND
 add_test(NAME remote_modal_test COMMAND
   ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/remote_modal_test.py)
+
+add_test(NAME fan_control_label_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/fan_control_label_test.py ${CMAKE_CXX_COMPILER})
+add_test(NAME robot_card_icons_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/robot_card_icons_test.py ${CMAKE_CXX_COMPILER})
 
 add_test(NAME clock_image_overlay_test COMMAND
   ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/clock_image_overlay_test.py)
@@ -541,3 +728,83 @@ target_compile_features(dual_switch_layout_test PRIVATE cxx_std_17)
 target_compile_options(dual_switch_layout_test PRIVATE -Wall -Wextra -Werror)
 target_include_directories(dual_switch_layout_test PRIVATE ../../components/espcontrol)
 add_test(NAME dual_switch_layout_test COMMAND dual_switch_layout_test)
+
+add_test(NAME clock_screensaver_time_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/clock_screensaver_time_test.py)
+
+add_executable(screensaver_pin_test screensaver_pin_test.cpp
+  ../../components/espcontrol/screensaver_pin.cpp)
+target_compile_features(screensaver_pin_test PRIVATE cxx_std_17)
+target_compile_options(screensaver_pin_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(screensaver_pin_test PRIVATE screensaver_pin_stubs ../../components/espcontrol)
+target_link_libraries(screensaver_pin_test PRIVATE Threads::Threads)
+add_test(NAME screensaver_pin_test COMMAND screensaver_pin_test)
+add_test(NAME screensaver_pin_ui_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/screensaver_pin_ui_test.py ${CMAKE_CXX_COMPILER})
+add_test(NAME screensaver_pin_cover_art_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/screensaver_pin_cover_art_test.py ${CMAKE_CXX_COMPILER})
+
+add_test(NAME date_time_psram_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/date_time_psram_test.py)
+
+add_executable(weather_daily_forecast_test weather_daily_forecast_test.cpp)
+target_compile_features(weather_daily_forecast_test PRIVATE cxx_std_17)
+target_compile_options(weather_daily_forecast_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(weather_daily_forecast_test PRIVATE ../../components/espcontrol)
+add_test(NAME weather_daily_forecast_test COMMAND weather_daily_forecast_test)
+
+add_test(NAME weather_daily_template_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/weather_daily_template_test.py)
+
+add_executable(weather_daily_ui_test weather_daily_ui_test.cpp)
+target_compile_features(weather_daily_ui_test PRIVATE cxx_std_17)
+target_compile_options(weather_daily_ui_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(weather_daily_ui_test PRIVATE ../../components/espcontrol)
+add_test(NAME weather_daily_ui_test COMMAND weather_daily_ui_test)
+
+add_test(NAME weather_daily_requests_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/weather_daily_requests_test.py)
+
+add_test(NAME camera_screensaver_dimming_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/camera_screensaver_dimming_test.py)
+
+add_test(NAME restart_primary_core_test COMMAND
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/restart_primary_core_test.py ${CMAKE_CXX_COMPILER})
+
+add_test(NAME discovery_shutdown_order_test COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/discovery_shutdown_order_test.py)
+
+add_executable(weather_wind_test weather_wind_test.cpp)
+target_compile_features(weather_wind_test PRIVATE cxx_std_17)
+target_compile_options(weather_wind_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(weather_wind_test PRIVATE ../../components/espcontrol)
+add_test(NAME weather_wind_test COMMAND weather_wind_test)
+add_executable(rainfall_card_test rainfall_card_test.cpp)
+target_compile_features(rainfall_card_test PRIVATE cxx_std_17)
+target_compile_options(rainfall_card_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(rainfall_card_test PRIVATE ../../components/espcontrol)
+add_test(NAME rainfall_card_test COMMAND rainfall_card_test)
+
+add_executable(ha_connection_warning_test ha_connection_warning_test.cpp)
+target_compile_features(ha_connection_warning_test PRIVATE cxx_std_17)
+target_compile_options(ha_connection_warning_test PRIVATE -Wall -Wextra -Werror -UNDEBUG)
+target_include_directories(ha_connection_warning_test PRIVATE ../../components/espcontrol)
+add_test(NAME ha_connection_warning_test COMMAND ha_connection_warning_test)
+
+add_executable(panel_backup_test panel_backup_test.cpp)
+target_compile_features(panel_backup_test PRIVATE cxx_std_17)
+target_compile_options(panel_backup_test PRIVATE -Wall -Wextra -Werror -UNDEBUG)
+add_test(NAME panel_backup_test COMMAND panel_backup_test)
+add_test(NAME panel_backup_bindings_test COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/panel_backup_bindings_test.py)
+add_test(NAME panel_backup_endpoint_test COMMAND
+  ${CMAKE_COMMAND} -E env "CXX=${CMAKE_CXX_COMPILER}"
+  ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/panel_backup_endpoint_test.py)
+
+add_executable(weather_metric_test weather_metric_test.cpp)
+target_compile_features(weather_metric_test PRIVATE cxx_std_17)
+target_compile_options(weather_metric_test PRIVATE -Wall -Wextra -Werror)
+target_include_directories(weather_metric_test PRIVATE ../../components/espcontrol)
+add_test(NAME weather_metric_test COMMAND weather_metric_test)

@@ -27,7 +27,7 @@ inline void sensor_driver_apply_background(
     BtnSlot &slot, const CardPalette &palette) {
   if (!palette.has_sensor_color) return;
   lv_obj_set_style_bg_color(
-    slot.btn, lv_color_hex(palette.sensor_val),
+    slot.btn, lv_color_hex(palette.surface_sensor_val),
     static_cast<lv_style_selector_t>(LV_PART_MAIN) |
       static_cast<lv_style_selector_t>(LV_STATE_DEFAULT));
 }
@@ -38,11 +38,11 @@ inline bool sensor_driver_setup_visual(
   if (!sensor_driver_matches(context)) return false;
 
   const bool local = sensor_driver_is_local(config, context);
+  sensor_driver_apply_background(slot, palette);
   if ((local && config.entity.empty()) || (!local && config.sensor.empty())) {
     return true;
   }
 
-  sensor_driver_apply_background(slot, palette);
   lv_obj_clear_flag(slot.btn, LV_OBJ_FLAG_CLICKABLE);
 
   if (sensor_driver_is_text(config, context)) {
@@ -56,10 +56,8 @@ inline bool sensor_driver_setup_visual(
   if (!local && config.precision == "icon") {
     lv_obj_clear_flag(slot.icon_lbl, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(slot.sensor_container, LV_OBJ_FLAG_HIDDEN);
-    const char *icon = (config.icon.empty() || config.icon == "Auto")
-      ? find_icon("Auto")
-      : find_icon(config.icon.c_str());
-    lv_label_set_display_text(slot.icon_lbl, icon);
+    lv_label_set_display_text(slot.icon_lbl, find_icon("Minus"));
+    set_card_disabled_state(slot.btn, true);
     if (!config.label.empty()) lv_label_set_display_text(slot.text_lbl, config.label.c_str());
     return true;
   }
@@ -111,10 +109,11 @@ inline bool sensor_driver_refresh_layout(
 }
 
 inline bool sensor_driver_cleanup(
-    BtnSlot &, const ParsedCfg &, const Context &context) {
-  // Duration-card allocations are owned by the existing grid allocation
-  // tracker. Local sensor callbacks and controls retain their established
-  // registry lifetime across dashboard rebuilds.
+    BtnSlot &slot, const ParsedCfg &, const Context &context) {
+  // This is called before every visual rebind, including a change to a
+  // different card family. Stop old local values reaching reused labels.
+  local_sensor_unregister_owner(slot.btn);
+  lv_obj_remove_event_cb(slot.btn, local_sensor_owner_deleted);
   return sensor_driver_matches(context);
 }
 
@@ -132,15 +131,10 @@ inline void sensor_driver_register_local_value(
     control.precision = atoi(config.precision.c_str());
   }
 
-  auto &registry = local_sensor_registry();
-  size_t write_index = 0;
-  for (size_t read_index = 0; read_index < registry.size(); read_index++) {
-    if (registry[read_index].owner == control.owner) continue;
-    if (write_index != read_index) registry[write_index] = registry[read_index];
-    write_index++;
-  }
-  registry.resize(write_index);
-  registry.push_back(control);
+  local_sensor_unregister_owner(control.owner);
+  local_sensor_registry().push_back(control);
+  lv_obj_remove_event_cb(control.owner, local_sensor_owner_deleted);
+  lv_obj_add_event_cb(control.owner, local_sensor_owner_deleted, LV_EVENT_DELETE, nullptr);
 
 #ifdef USE_SENSOR
   if (!is_text) {
@@ -153,13 +147,7 @@ inline void sensor_driver_register_local_value(
           local_sensor_apply_value(key, value);
         });
       }
-      if (!std::isnan(esp_sensor->state) && control.sensor_lbl) {
-        char buffer[32];
-        if (control.precision == 1) snprintf(buffer, sizeof(buffer), "%.1f", esp_sensor->state);
-        else if (control.precision == 2) snprintf(buffer, sizeof(buffer), "%.2f", esp_sensor->state);
-        else snprintf(buffer, sizeof(buffer), "%.0f", esp_sensor->state);
-        lv_label_set_display_text(control.sensor_lbl, buffer);
-      }
+      local_sensor_render_numeric(control.sensor_lbl, control.precision, esp_sensor->state);
       break;
     }
   }
@@ -197,7 +185,7 @@ inline bool sensor_driver_bind_data(
     if (!config.sensor.empty()) {
       subscribe_sensor_text_card_value(
         slot.text_lbl, config, slot.btn, sensor_active_color_enabled(config),
-        palette.on_val, palette.sensor_val);
+        palette.on_val, true, palette.custom_background ? palette.surface_sensor_val : UINT32_MAX);
     }
     return true;
   }
@@ -219,8 +207,7 @@ inline bool sensor_driver_bind_data(
       subscribe_sensor_value(
         slot.sensor_lbl, config.sensor, parse_precision(config.precision),
         slot.unit_lbl, config.unit, slot.btn,
-        sensor_active_color_enabled(config), palette.on_val,
-        palette.sensor_val);
+        sensor_active_color_enabled(config), palette.on_val, true, palette.custom_background ? palette.surface_sensor_val : UINT32_MAX);
     }
     if (config.label.empty()) subscribe_friendly_name(slot.text_lbl, config.sensor);
   }

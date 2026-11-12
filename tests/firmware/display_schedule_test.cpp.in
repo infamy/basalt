@@ -83,6 +83,7 @@ int *active_page = nullptr;
 int *lv_scr_act() { return active_page; }
 struct Text { std::string state; std::string current_option() { return state; } };
 Text button_order{"1"}, screen_schedule_trigger{"time"}, screen_schedule_sensor_activation{"Sensor Off"}, screensaver_mode{"timer"};
+Text cover_art_media_player_entity{"media_player.test"};
 struct Number { float state; } schedule_on_hour{7}, schedule_off_hour{22}, schedule_wake_timeout{60}, screensaver_timeout{300};
 struct Toggle { bool state = false; } schedule_enabled{true}, cover_art_screensaver_enabled{}, media_player_sleep_prevention_enabled{};
 bool connectivity_setup_display_active = false, schedule_presence_detected = false,

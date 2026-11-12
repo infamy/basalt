@@ -39,6 +39,37 @@ export function normalizeTimeOfDay(value: unknown, fallback: string): string {
   return String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
 }
 
+export function normalizeThemeMode(value: unknown): string {
+  const mode = String(value || "").trim().toLowerCase();
+  if (mode === "light") return "Light";
+  if (mode === "auto" || mode === "schedule" || mode === "sun") return "Auto";
+  return "Dark";
+}
+
+export function normalizeCardCurve(value: unknown): string {
+  const preset = String(value || "").trim().toLowerCase();
+  return preset === "small" ? "Small" : preset === "large" ? "Large" : "Medium";
+}
+
+export function cardCurveRadius(baseRadius: number, preset: unknown, radii?: Readonly<Record<string, number>>): number {
+  const curve = normalizeCardCurve(preset);
+  if (radii?.[curve] !== undefined) return radii[curve];
+  return Math.round(baseRadius * (curve === "Small" ? .6 : curve === "Medium" ? .8 : 1));
+}
+
+export function normalizeThemeAutoMethod(value: unknown): string {
+  const method = String(value || "").trim().toLowerCase();
+  return method === "sun" || method === "sunrise / sunset" || method === "sunrise_sunset"
+    ? "Sunrise / Sunset" : "Time";
+}
+
+export function parseThemeSunOffset(value: unknown): number | null {
+  const text = String(value == null ? "" : value).trim();
+  if (!/^[+-]?\d+$/.test(text)) return null;
+  const offset = Number(text);
+  return Number.isSafeInteger(offset) && offset >= -180 && offset <= 180 ? offset : null;
+}
+
 export function normalizeBrightnessMode(value: unknown): string {
   const mode = String(value || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
   if (mode === "manual") return "manual";
@@ -75,6 +106,11 @@ export const DEFAULT_ALARM_DELAY_EXIT_ANNOUNCEMENT = "Alarm arming, please leave
 export function normalizeAlarmDelayAnnouncement(value: unknown, fallback: string): string {
   const text = String(value == null ? "" : value).trim();
   return (text || fallback).slice(0, 120);
+}
+
+export function normalizeClockBarTemperaturePrecision(value: unknown): number {
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 0 && n <= 2 ? n : 0;
 }
 
 export function normalizeAlarmDelayBeepVolume(value: unknown): number {
@@ -170,6 +206,11 @@ export function screensaverActionOption(value: unknown): string {
   if (action === "clock") return "Clock";
   if (action === "camera") return "Camera";
   return "Display Off";
+}
+
+export function normalizeScreensaverCameraDimming(value: unknown): number {
+  const n = parseFloat(String(value));
+  return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n))) : 0;
 }
 
 export function normalizeScreensaverCameraImageMode(value: unknown): string {
@@ -360,6 +401,7 @@ export interface BackupPanelSettingsState {
   alarmDelayExitAnnouncement: string;
   alarmDelayBeepVolume: number;
   alarmDelayFinalCountdown: number;
+  clockBarTemperaturePrecision: number;
   temperatureDegreeSymbol: boolean;
   subpageChevron: boolean;
   timezone: string;
@@ -379,9 +421,11 @@ export interface BackupPanelSettingsState {
   screensaverMetadataEntity: string;
   metadataOverlay: boolean;
   screensaverCameraImageMode: string;
+  screensaverCameraDimming: number;
   mediaPlayerSleepPrevention: boolean;
   mediaPlayerSleepPreventionEntity: string;
   coverArtScreensaver: boolean;
+  clockDate: boolean;
   clockOverlay: boolean;
   coverArtMediaPlayerEntity: string;
   coverArtSecondaryMediaPlayerEntity: string;
@@ -521,6 +565,7 @@ export function normalizeBackupPanelSettings(
     ),
     alarmDelayBeepVolume: normalizeAlarmDelayBeepVolume(settings.alarm_delay_beep_volume),
     alarmDelayFinalCountdown: normalizeAlarmDelayFinalCountdown(settings.alarm_delay_final_countdown),
+    clockBarTemperaturePrecision: normalizeClockBarTemperaturePrecision(settings.clock_bar_temperature_precision),
     temperatureDegreeSymbol: objectValue(settings, "temperature_degree_symbol") != null
       ? !!settings.temperature_degree_symbol
       : true,
@@ -547,6 +592,7 @@ export function normalizeBackupPanelSettings(
     cameraMotionSensitivity: normalizeCameraMotionSensitivity(settings.camera_motion_sensitivity),
     presenceSensorEntity: String(settings.presence_sensor_entity || ""),
     screensaverCameraEntity: String(settings.screensaver_camera_entity || ""),
+    screensaverCameraDimming: normalizeScreensaverCameraDimming(settings.screensaver_camera_dimming),
     screensaverMetadataEntity: String(settings.screensaver_metadata_entity || ""),
     metadataOverlay: objectValue(settings, "metadata_overlay") != null
       ? !!settings.metadata_overlay
@@ -559,6 +605,7 @@ export function normalizeBackupPanelSettings(
       : true,
     mediaPlayerSleepPreventionEntity: String(settings.media_player_sleep_prevention_entity || settings.cover_art_media_player_entity || ""),
     coverArtScreensaver: !!settings.cover_art_screensaver,
+    clockDate: !!settings.clock_date,
     clockOverlay: objectValue(settings, "clock_overlay") != null
       ? !!settings.clock_overlay
       : false,

@@ -62,6 +62,7 @@ inline Family family_for_runtime_type(espcontrol::card_runtime::CardTypeId type)
     case Type::OPTION_SELECT: return Family::OPTION_SELECT;
     case Type::PUSH: return Family::PUSH;
     case Type::SCREEN_LOCK: return Family::SCREEN_LOCK;
+    case Type::SCREENSAVER: return Family::SCREENSAVER;
     case Type::SENSOR: return Family::SENSOR;
     case Type::SLIDER:
     case Type::LIGHT_BRIGHTNESS: return Family::SLIDER;
@@ -327,6 +328,14 @@ constexpr const char *card_runtime_option_name_volume_max() {
   return CARD_CONTRACT_OPTION_NAME_VOLUME_MAX;
 }
 
+constexpr const char *card_runtime_option_name_media_tabs() {
+  return CARD_CONTRACT_OPTION_NAME_MEDIA_TABS;
+}
+
+constexpr const char *card_runtime_option_name_power_entity() {
+  return CARD_CONTRACT_OPTION_NAME_POWER_ENTITY;
+}
+
 constexpr const char *card_runtime_option_name_speaker_group_entity() {
   return CARD_CONTRACT_OPTION_NAME_SPEAKER_GROUP_ENTITY;
 }
@@ -579,17 +588,6 @@ inline constexpr bool card_runtime_weather_forecast_supported() {
 inline bool card_runtime_weather_forecast_precision(const std::string &precision) {
   if (!card_runtime_weather_forecast_supported()) return false;
   return card_contract_weather_forecast_precision(precision);
-}
-
-// Saved weather modes beyond current conditions need Home Assistant forecasts.
-inline bool card_runtime_weather_mode_valid(const std::string &mode) {
-  if (mode.empty()) return true;
-  if (!card_runtime_weather_forecast_supported()) return false;
-  return card_contract_weather_mode_valid(mode);
-}
-
-inline bool card_runtime_weather_days_mode(const std::string &mode) {
-  return mode == "days" && card_runtime_weather_mode_valid(mode);
 }
 
 inline std::string card_runtime_vacuum_mode(const std::string &mode) {

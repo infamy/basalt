@@ -46,7 +46,7 @@ inline T *light_control_driver_track(
 }
 
 struct LightControlDriverEnvironment {
-  uint32_t accent_color = DEFAULT_SLIDER_COLOR;
+  uint32_t accent_color = DEFAULT_ACCENT_COLOR;
   const lv_font_t *number_font = nullptr;
   const lv_font_t *label_font = nullptr;
   const lv_font_t *icon_font = nullptr;
@@ -59,7 +59,7 @@ inline LightControlDriverEnvironment light_control_driver_environment(
     const BtnSlot &slot) {
   LightControlDriverEnvironment environment;
   environment.accent_color = palette.has_on
-    ? palette.on_val : DEFAULT_SLIDER_COLOR;
+    ? palette.on_val : DEFAULT_ACCENT_COLOR;
   environment.number_font = display_volume_number_font(display);
   environment.label_font = display_volume_label_font(display)
     ? display_volume_label_font(display)
@@ -106,11 +106,11 @@ inline bool light_control_driver_bind_subpage(
   if (environment.add_parent_indicator) {
     environment.add_parent_indicator(config.entity);
   }
-  lv_obj_add_event_cb(slot.btn, [](lv_event_t *event) {
+  bind_navigation_button_action(slot.btn, [](lv_event_t *event) {
     LightControlCtx *context = static_cast<LightControlCtx *>(
       lv_event_get_user_data(event));
     if (context) light_control_open_modal(context);
-  }, LV_EVENT_CLICKED, light);
+  }, light);
   return true;
 }
 

@@ -116,12 +116,19 @@ struct ClimateControlCtx {
   int precision = 0;
   std::string label_display = "label";
   std::string number_display = "target";
-  int pending_target_tenths = CLIMATE_DEFAULT_TARGET_TENTHS;
+  // Keep reports separate while plus/minus edits wait for their debounce.
+  int reported_target_tenths = CLIMATE_DEFAULT_TARGET_TENTHS;
+  int reported_low_tenths = CLIMATE_DEFAULT_LOW_TENTHS;
+  int reported_high_tenths = CLIMATE_DEFAULT_HIGH_TENTHS;
+  uint32_t pending_connection_generation = 0;
   bool pending_temp_send = false;
+  bool pending_target_edit = false;
+  bool pending_low_edit = false;
+  bool pending_high_edit = false;
   lv_timer_t *debounce_timer = nullptr;
-  uint32_t accent_color = DEFAULT_SLIDER_COLOR;
-  uint32_t secondary_color = SECONDARY_GREY;
-  uint32_t tertiary_color = TERTIARY_GREY;
+  uint32_t accent_color = DEFAULT_ACCENT_COLOR;
+  uint32_t secondary_color = theme_display_color(current_theme().surface_primary);
+  uint32_t tertiary_color = theme_display_color(current_theme().surface_secondary);
   lv_obj_t *btn = nullptr;
   lv_obj_t *icon_lbl = nullptr;
   lv_obj_t *label_lbl = nullptr;
@@ -494,6 +501,16 @@ inline std::string climate_option_label(const std::string &raw) {
   return espcontrol_i18n(sentence_cap_text(value));
 }
 
+// Keep the familiar translated label unless it hides distinct wire values.
+inline std::string climate_option_choice_label(
+    const std::string &raw, const std::vector<std::string> &options) {
+  const std::string label = climate_option_label(raw);
+  for (const auto &other : options) {
+    if (other != raw && climate_option_label(other) == label) return raw;
+  }
+  return label;
+}
+
 inline size_t climate_utf8_char_count(const std::string &value) {
   size_t count = 0;
   for (unsigned char ch : value) {
@@ -508,7 +525,7 @@ inline lv_coord_t climate_option_menu_width(const std::vector<std::string> &opti
   lv_coord_t line_h = font && font->line_height > 0 ? font->line_height : 32;
   lv_coord_t widest_text = 0;
   for (const auto &option : options) {
-    size_t len = climate_utf8_char_count(climate_option_label(option));
+    size_t len = climate_utf8_char_count(climate_option_choice_label(option, options));
     lv_coord_t estimated_w = static_cast<lv_coord_t>(len) * line_h * 3 / 5;
     if (estimated_w > widest_text) widest_text = estimated_w;
   }
@@ -781,13 +798,6 @@ inline void climate_layout_handle_dot(ClimateControlCtx *ctx, const ControlModal
   climate_layout_arc_dot(ctx, layout, ui.handle_dot, climate_display_target(ctx), handle_size, radius);
 }
 
-inline void climate_apply_background_arc_width(lv_obj_t *arc, const ControlModalLayout &layout) {
-  if (!arc) return;
-  lv_coord_t extra = control_modal_scaled_px(4, layout.short_side);
-  if (extra < 2) extra = 2;
-  lv_obj_set_style_arc_width(arc, layout.arc_stroke + extra, LV_PART_MAIN);
-}
-
 inline bool climate_control_uses_square_modal_tuning(const ControlModalLayout &layout) {
   return control_modal_uses_square_tuning(layout);
 }
@@ -999,12 +1009,12 @@ inline bool climate_has_active_arc_mode(ClimateControlCtx *ctx) {
 }
 
 inline uint32_t climate_modal_arc_color(ClimateControlCtx *ctx) {
-  if (!climate_has_active_arc_mode(ctx)) return SECONDARY_GREY;
-  return ctx ? ctx->accent_color : DEFAULT_SLIDER_COLOR;
+  if (!climate_has_active_arc_mode(ctx)) return theme_display_color(current_theme().surface_primary);
+  return ctx ? ctx->accent_color : DEFAULT_ACCENT_COLOR;
 }
 
 inline uint32_t climate_heating_color(ClimateControlCtx *ctx) {
-  return ctx ? ctx->accent_color : DEFAULT_SLIDER_COLOR;
+  return ctx ? ctx->accent_color : DEFAULT_ACCENT_COLOR;
 }
 
 inline int climate_modal_arc_value(ClimateControlCtx *ctx, bool temp_enabled, int target) {
@@ -1022,7 +1032,7 @@ inline int climate_target_from_modal_arc_value(ClimateControlCtx *ctx, int value
 }
 
 inline uint32_t climate_active_color(ClimateControlCtx *ctx) {
-  if (!ctx) return DEFAULT_SLIDER_COLOR;
+  if (!ctx) return DEFAULT_ACCENT_COLOR;
   return ctx->accent_color;
 }
 
@@ -1126,17 +1136,17 @@ inline void climate_update_card(ClimateControlCtx *ctx) {
   }
 }
 
-inline void climate_send_action(const std::string &entity_id,
+inline bool climate_send_action(const std::string &entity_id,
                                 const char *service,
                                 const std::vector<std::pair<const char *, std::string>> &data) {
-  if (entity_id.empty() || service == nullptr || service[0] == '\0') return;
+  if (entity_id.empty() || service == nullptr || service[0] == '\0') return false;
   esphome::api::HomeassistantActionRequest req;
-  if (!ha_action_begin(req, service, false, data.size() + 1)) return;
+  if (!ha_action_begin(req, service, false, data.size() + 1)) return false;
   ha_action_add_entity(req, entity_id);
   for (const auto &item : data) {
     ha_action_add_data(req, item.first, item.second.c_str());
   }
-  ha_action_send(req);
+  return ha_action_send(req);
 }
 
 inline std::string climate_service_temp_value(int tenths) {
@@ -1146,24 +1156,47 @@ inline std::string climate_service_temp_value(int tenths) {
   return buf;
 }
 
+inline void climate_cancel_temperature_send(ClimateControlCtx *ctx) {
+  if (!ctx) return;
+  if (ctx->pending_temp_send) {
+    ctx->target_tenths = ctx->reported_target_tenths;
+    ctx->low_tenths = ctx->reported_low_tenths;
+    ctx->high_tenths = ctx->reported_high_tenths;
+  }
+  ctx->pending_temp_send = false;
+  ctx->pending_target_edit = ctx->pending_low_edit = ctx->pending_high_edit = false;
+  if (ctx->debounce_timer) lv_timer_pause(ctx->debounce_timer);
+}
+
 inline void climate_send_temperature(ClimateControlCtx *ctx) {
-  if (!ctx || ctx->entity_id.empty() || !climate_modal_temperature_controls_enabled(ctx)) return;
+  if (!ctx) return;
+  if (ctx->entity_id.empty() || !climate_modal_temperature_controls_enabled(ctx) ||
+      !ha_api_state_connected() ||
+      (ctx->pending_temp_send && ctx->pending_connection_generation !=
+        ha_read_coordinator().connection_generation())) {
+    climate_cancel_temperature_send(ctx);
+    climate_update_card(ctx);
+    climate_control_set_modal_value(ctx);
+    return;
+  }
   ClimateTargetKind kind = climate_target_kind(ctx);
   espcontrol::climate::CommandKind command = espcontrol::climate::command_kind(
     kind, climate_target_values_complete(ctx));
+  bool sent = false;
   if (command == espcontrol::climate::CommandKind::RANGE) {
-    climate_send_action(ctx->entity_id, "climate.set_temperature", {
+    sent = climate_send_action(ctx->entity_id, "climate.set_temperature", {
       {"target_temp_low", climate_service_temp_value(ctx->low_tenths)},
       {"target_temp_high", climate_service_temp_value(ctx->high_tenths)},
     });
   } else if (command == espcontrol::climate::CommandKind::SINGLE) {
-    climate_send_action(ctx->entity_id, "climate.set_temperature", {
+    sent = climate_send_action(ctx->entity_id, "climate.set_temperature", {
       {"temperature", climate_service_temp_value(ctx->target_tenths)},
     });
-  } else {
-    return;
   }
-  ctx->pending_temp_send = false;
+  if (sent) ctx->pending_temp_send = false;
+  climate_cancel_temperature_send(ctx);
+  climate_update_card(ctx);
+  climate_control_set_modal_value(ctx);
 }
 
 inline void climate_debounce_timer_cb(lv_timer_t *timer) {
@@ -1175,7 +1208,15 @@ inline void climate_debounce_timer_cb(lv_timer_t *timer) {
 
 inline void climate_schedule_temperature_send(ClimateControlCtx *ctx) {
   if (!ctx) return;
+  // Multiple edits before the timer fires can touch either or both endpoints.
+  if (climate_range_target(ctx)) {
+    if (ctx->edit_high) ctx->pending_high_edit = true;
+    else ctx->pending_low_edit = true;
+  } else {
+    ctx->pending_target_edit = true;
+  }
   ctx->pending_temp_send = true;
+  ctx->pending_connection_generation = ha_read_coordinator().connection_generation();
   if (!ctx->debounce_timer) {
     ctx->debounce_timer = lv_timer_create(climate_debounce_timer_cb, CLIMATE_TEMP_DEBOUNCE_MS, ctx);
   }
@@ -1183,13 +1224,9 @@ inline void climate_schedule_temperature_send(ClimateControlCtx *ctx) {
     lv_timer_set_period(ctx->debounce_timer, CLIMATE_TEMP_DEBOUNCE_MS);
     lv_timer_reset(ctx->debounce_timer);
     lv_timer_resume(ctx->debounce_timer);
+  } else {
+    climate_cancel_temperature_send(ctx);
   }
-}
-
-inline void climate_cancel_temperature_send(ClimateControlCtx *ctx) {
-  if (!ctx) return;
-  ctx->pending_temp_send = false;
-  if (ctx->debounce_timer) lv_timer_pause(ctx->debounce_timer);
 }
 
 inline void climate_apply_selected_target(ClimateControlCtx *ctx, int value, bool send_now, bool debounce);
@@ -1256,33 +1293,54 @@ inline void climate_preview_selected_target(ClimateControlCtx *ctx, int value) {
 }
 
 inline std::vector<std::string> climate_parse_options(esphome::StringRef value) {
-  std::string raw = string_ref_limited(value, HA_TEXT_SENSOR_STATE_MAX_LEN);
+  std::string raw = climate_trim(string_ref_limited(value, HA_TEXT_SENSOR_STATE_MAX_LEN));
+  if (raw.size() >= 2 && raw.front() == '[' && raw.back() == ']')
+    raw = raw.substr(1, raw.size() - 2);
   std::vector<std::string> out;
   std::string token;
+  char quote = 0;
+  bool escaped = false;
+  bool quoted_token = false;
+  bool closed_quote = false;
   auto flush = [&]() {
-    std::string v = climate_clean_option_token(token);
+    std::string item = quoted_token ? token : climate_trim(token);
+    if (!item.empty() && std::find(out.begin(), out.end(), item) == out.end())
+      out.push_back(item);
     token.clear();
-    if (v.empty()) return;
-    std::string lower = climate_lower(v);
-    if (lower == "hvacmode" || lower == "fanmode" || lower == "swingmode" || lower == "presetmode") return;
-    bool all_caps = true;
-    bool has_alpha = false;
-    for (char ch : v) {
-      if (std::isalpha((unsigned char)ch)) {
-        has_alpha = true;
-        if (!std::isupper((unsigned char)ch)) all_caps = false;
-      }
-    }
-    if (has_alpha && all_caps) v = lower;
-    for (const auto &existing : out) {
-      if (climate_lower(existing) == climate_lower(v)) return;
-    }
-    out.push_back(v);
+    quoted_token = closed_quote = false;
   };
   for (char ch : raw) {
-    if (ch == ',' || ch == '[' || ch == ']') flush();
-    else token.push_back(ch);
+    if (quote) {
+      if (escaped) {
+        switch (ch) {
+          case 'n': token.push_back('\n'); break;
+          case 'r': token.push_back('\r'); break;
+          case 't': token.push_back('\t'); break;
+          default: token.push_back(ch); break;
+        }
+        escaped = false;
+      } else if (ch == '\\') {
+        escaped = true;
+      } else if (ch == quote) {
+        quote = 0;
+        closed_quote = true;
+      } else {
+        token.push_back(ch);
+      }
+    } else if (ch == ',') {
+      flush();
+    } else if ((ch == '\'' || ch == '"') && climate_trim(token).empty() && !closed_quote) {
+      token.clear();
+      quote = ch;
+      quoted_token = true;
+    } else if (closed_quote) {
+      if (!std::isspace(static_cast<unsigned char>(ch))) return {};
+    } else {
+      token.push_back(ch);
+    }
   }
+  // Incomplete quoted input must never become a different action value.
+  if (quote || escaped) return {};
   flush();
   return out;
 }
@@ -1388,7 +1446,7 @@ inline bool climate_option_selected(ClimateControlCtx *ctx,
   if (!ctx) return false;
   if (kind == "hvac") return climate_hvac_service_value(value) == ctx->hvac_mode;
   std::string current = climate_option_current_value(ctx, kind);
-  return climate_lower(climate_trim(value)) == climate_lower(climate_trim(current));
+  return value == current;
 }
 
 inline const char *climate_option_icon(const std::string &kind, const std::string &value) {
@@ -1459,7 +1517,7 @@ inline lv_obj_t *climate_create_option_chip(lv_obj_t *parent, const char *icon,
   lv_obj_set_flex_grow(btn, 0);
   lv_obj_add_flag(btn, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
   lv_obj_set_style_radius(btn, 47, LV_PART_MAIN);
-  lv_obj_set_style_bg_color(btn, lv_color_hex(SECONDARY_GREY), LV_PART_MAIN);
+  lv_obj_set_style_bg_color(btn, lv_color_hex(theme_display_color(current_theme().surface_primary)), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, LV_PART_MAIN);
   lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN);
   lv_obj_set_style_shadow_width(btn, 0, LV_PART_MAIN);
@@ -1477,7 +1535,7 @@ inline lv_obj_t *climate_create_option_chip(lv_obj_t *parent, const char *icon,
   lv_obj_t *icon_lbl = lv_label_create(btn);
   lv_obj_add_flag(icon_lbl, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
   lv_label_set_display_text(icon_lbl, icon);
-  lv_obj_set_style_text_color(icon_lbl, lv_color_hex(DARK_TEXT_SOFT), LV_PART_MAIN);
+  lv_obj_set_style_text_color(icon_lbl, lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
   lv_obj_set_style_text_align(icon_lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   if (icon_font) lv_obj_set_style_text_font(icon_lbl, icon_font, LV_PART_MAIN);
   apply_width_compensation(icon_lbl, width_compensation_percent);
@@ -1502,7 +1560,7 @@ inline lv_obj_t *climate_create_option_chip(lv_obj_t *parent, const char *icon,
   lv_obj_set_width(title_lbl, lv_pct(100));
   lv_label_set_display_text(title_lbl, espcontrol_i18n(title));
   lv_label_set_long_mode(title_lbl, LV_LABEL_LONG_CLIP);
-  lv_obj_set_style_text_color(title_lbl, lv_color_hex(DARK_TEXT_MUTED), LV_PART_MAIN);
+  lv_obj_set_style_text_color(title_lbl, lv_color_hex(current_theme().text_muted), LV_PART_MAIN);
   lv_obj_set_style_text_align(title_lbl, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN);
   if (title_font) lv_obj_set_style_text_font(title_lbl, title_font, LV_PART_MAIN);
 
@@ -1511,7 +1569,7 @@ inline lv_obj_t *climate_create_option_chip(lv_obj_t *parent, const char *icon,
   lv_obj_set_width(value_lbl, lv_pct(100));
   lv_label_set_display_text(value_lbl, espcontrol_i18n("None"));
   lv_label_set_long_mode(value_lbl, LV_LABEL_LONG_CLIP);
-  lv_obj_set_style_text_color(value_lbl, lv_color_hex(DARK_TEXT_SOFT), LV_PART_MAIN);
+  lv_obj_set_style_text_color(value_lbl, lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
   lv_obj_set_style_text_align(value_lbl, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN);
   if (value_font) lv_obj_set_style_text_font(value_lbl, value_font, LV_PART_MAIN);
 
@@ -1538,13 +1596,14 @@ inline void climate_set_arc_enabled(lv_obj_t *arc, bool enabled) {
 inline void climate_style_range_target_button(lv_obj_t *btn, bool selected,
                                                uint32_t selected_color) {
   if (!btn) return;
+  theme_set_content_background(btn, selected);
   lv_obj_set_style_bg_color(btn, lv_color_hex(selected_color), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(btn, selected ? LV_OPA_COVER : LV_OPA_TRANSP,
                           LV_PART_MAIN);
   lv_obj_t *label = lv_obj_get_child(btn, 0);
   if (label) {
     lv_obj_set_style_text_color(label, lv_color_hex(
-      selected ? DARK_TEXT_PRIMARY : DARK_TEXT_MUTED), LV_PART_MAIN);
+      selected ? readable_text_color_for_bg(selected_color) : current_theme().text_muted), LV_PART_MAIN);
   }
 }
 
@@ -1577,20 +1636,21 @@ inline void climate_set_dial_controls_visible(bool visible) {
 
 inline void climate_set_step_button_enabled(lv_obj_t *btn, bool enabled) {
   if (!btn) return;
+  control_modal_track_theme_disabled(btn);
   lv_style_selector_t disabled_selector =
     static_cast<lv_style_selector_t>(LV_PART_MAIN) | static_cast<lv_style_selector_t>(LV_STATE_DISABLED);
   lv_obj_set_style_opa(btn, LV_OPA_COVER, LV_PART_MAIN);
-  lv_obj_set_style_bg_color(btn, lv_color_hex(SECONDARY_GREY), LV_PART_MAIN);
+  lv_obj_set_style_bg_color(btn, lv_color_hex(theme_display_color(current_theme().surface_primary)), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, LV_PART_MAIN);
   lv_obj_set_style_bg_opa(btn, LV_OPA_TRANSP, disabled_selector);
   lv_obj_set_style_opa(btn, LV_OPA_COVER, disabled_selector);
-  lv_obj_set_style_border_color(btn, lv_color_hex(DARK_CONTROL_NEUTRAL), LV_PART_MAIN);
-  lv_obj_set_style_border_color(btn, lv_color_hex(DARK_TRACK_BACKGROUND), disabled_selector);
+  lv_obj_set_style_border_color(btn, lv_color_hex(theme_display_color(current_theme().control_neutral)), LV_PART_MAIN);
+  lv_obj_set_style_border_color(btn, lv_color_hex(theme_display_color(current_theme().track_background)), disabled_selector);
 
   lv_obj_t *label = lv_obj_get_child(btn, 0);
   if (label) {
-    lv_obj_set_style_text_color(label, lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
-    lv_obj_set_style_text_color(label, lv_color_hex(DARK_TRACK_BACKGROUND), disabled_selector);
+    lv_obj_set_style_text_color(label, lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
+    lv_obj_set_style_text_color(label, lv_color_hex(theme_display_color(current_theme().track_background)), disabled_selector);
   }
 
   if (enabled) {
@@ -1606,15 +1666,16 @@ inline void climate_set_step_button_enabled(lv_obj_t *btn, bool enabled) {
 
 inline void climate_control_style_tab(lv_obj_t *btn, bool active, uint32_t accent_color) {
   if (!btn) return;
+  control_modal_track_theme_tab(btn);
   (void) accent_color;
   lv_obj_set_style_bg_color(
-    btn, lv_color_hex(active ? DARK_TEXT_PRIMARY : SECONDARY_GREY), LV_PART_MAIN);
+    btn, lv_color_hex(active ? current_theme().text_primary : theme_display_color(current_theme().surface_primary)), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(btn, active ? LV_OPA_COVER : LV_OPA_TRANSP, LV_PART_MAIN);
   lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN);
   lv_obj_t *label = lv_obj_get_child(btn, 0);
   if (label) {
     lv_obj_set_style_text_color(
-      label, lv_color_hex(active ? TERTIARY_GREY : DARK_TEXT_PRIMARY), LV_PART_MAIN);
+      label, lv_color_hex(active ? theme_display_color(current_theme().surface_secondary) : current_theme().text_primary), LV_PART_MAIN);
   }
 }
 
@@ -1630,7 +1691,7 @@ inline lv_obj_t *climate_control_create_tab_button(lv_obj_t *parent, const char 
                                                    ClimateControlTab tab) {
   lv_obj_t *btn = lv_btn_create(parent);
   if (!btn) return nullptr;
-  lv_obj_set_style_bg_color(btn, lv_color_hex(SECONDARY_GREY), LV_PART_MAIN);
+  lv_obj_set_style_bg_color(btn, lv_color_hex(theme_display_color(current_theme().surface_primary)), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(btn, LV_OPA_TRANSP, LV_PART_MAIN);
   lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN);
   lv_obj_set_style_shadow_width(btn, 0, LV_PART_MAIN);
@@ -1640,7 +1701,7 @@ inline lv_obj_t *climate_control_create_tab_button(lv_obj_t *parent, const char 
   lv_obj_t *label = lv_label_create(btn);
   if (label) {
     lv_label_set_display_text(label, icon);
-    lv_obj_set_style_text_color(label, lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
+    lv_obj_set_style_text_color(label, lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
     if (font) lv_obj_set_style_text_font(label, font, LV_PART_MAIN);
     climate_center_tab_icon(label);
@@ -1732,9 +1793,11 @@ inline void climate_open_inline_option_list(ClimateControlCtx *ctx, const std::s
       ClimateOptionClick *click = climate_next_option_click(ui, ctx, section_kind, option);
       if (!click) break;
       bool selected = climate_option_selected(ctx, section_kind, option);
-      uint32_t bg_color = selected ? ctx->accent_color : ctx->secondary_color;
-      uint32_t text_color = selected ? DARK_TEXT_PRIMARY : readable_text_color_for_bg(bg_color);
+      uint32_t bg_color = selected ? ctx->accent_color : theme_display_color(current_theme().surface_primary);
+      uint32_t text_color = selected ? readable_text_color_for_bg(bg_color)
+                                     : current_theme().text_primary;
       lv_obj_t *btn = lv_btn_create(parent);
+      theme_set_content_background(btn, selected);
       lv_obj_set_size(btn, 118, 118);
       lv_obj_set_style_radius(btn, control_modal_card_radius(ctx->btn), LV_PART_MAIN);
       lv_obj_set_style_bg_color(btn, lv_color_hex(bg_color), LV_PART_MAIN);
@@ -1786,7 +1849,7 @@ inline void climate_open_inline_option_list(ClimateControlCtx *ctx, const std::s
           ? CLIMATE_MODAL_COMPACT_PORTRAIT_OPTION_ICON_ZOOM : 256);
 
       lv_obj_t *label = lv_label_create(content_parent);
-      lv_label_set_display_text(label, climate_option_label(option).c_str());
+      lv_label_set_display_text(label, climate_option_choice_label(option, section_options).c_str());
       lv_label_set_long_mode(label, compact_portrait_layout ? LV_LABEL_LONG_CLIP : LV_LABEL_LONG_WRAP);
       lv_obj_set_width(label, compact_portrait_layout ? LV_SIZE_CONTENT : lv_pct(100));
       lv_obj_set_style_text_color(label, lv_color_hex(text_color), LV_PART_MAIN);
@@ -1913,9 +1976,9 @@ inline void climate_open_option_menu(ClimateControlCtx *ctx, const std::string &
     lv_obj_set_style_pad_left(btn, 12, LV_PART_MAIN);
     lv_obj_set_style_pad_right(btn, 12, LV_PART_MAIN);
     lv_obj_t *label = lv_label_create(btn);
-    lv_label_set_display_text(label, climate_option_label(option).c_str());
+    lv_label_set_display_text(label, climate_option_choice_label(option, *options).c_str());
     lv_label_set_long_mode(label, LV_LABEL_LONG_CLIP);
-    lv_obj_set_style_text_color(label, lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
+    lv_obj_set_style_text_color(label, lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN);
     if (ctx->option_menu_font) lv_obj_set_style_text_font(label, ctx->option_menu_font, LV_PART_MAIN);
     lv_obj_center(label);
@@ -1947,7 +2010,7 @@ inline void climate_control_set_modal_value(ClimateControlCtx *ctx) {
              : climate_modal_arc_color(ctx)), LV_PART_INDICATOR);
       ui.updating_arc = false;
     }
-    lv_obj_set_style_bg_color(ui.arc, lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_KNOB);
+    lv_obj_set_style_bg_color(ui.arc, lv_color_hex(current_theme().text_primary), LV_PART_KNOB);
     lv_obj_set_style_bg_opa(ui.arc, dual ? LV_OPA_COVER : LV_OPA_TRANSP,
                             LV_PART_KNOB);
     climate_set_arc_enabled(ui.arc, temp_enabled);
@@ -1983,7 +2046,7 @@ inline void climate_control_set_modal_value(ClimateControlCtx *ctx) {
           climate_target_display_precision(ctx)).c_str()
       : "--");
     lv_obj_set_style_text_color(ui.low_target_lbl,
-                                lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
+                                lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
     lv_obj_set_style_text_opa(ui.low_target_lbl, LV_OPA_COVER, LV_PART_MAIN);
   }
   if (ui.high_target_lbl) {
@@ -1992,7 +2055,7 @@ inline void climate_control_set_modal_value(ClimateControlCtx *ctx) {
           climate_target_display_precision(ctx)).c_str()
       : "--");
     lv_obj_set_style_text_color(ui.high_target_lbl,
-                                lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
+                                lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
     lv_obj_set_style_text_opa(ui.high_target_lbl, LV_OPA_COVER, LV_PART_MAIN);
   }
   if (ui.unit_lbl) {
@@ -2079,7 +2142,6 @@ inline void climate_control_layout_modal(ClimateControlCtx *ctx) {
     lv_obj_align(ui.menu_close_btn, LV_ALIGN_TOP_RIGHT, -layout.inset, layout.inset);
   }
   control_modal_apply_arc_layout(ui.arc, layout, ctx->width_compensation_percent);
-  climate_apply_background_arc_width(ui.arc, layout);
   if (ui.current_dot) climate_layout_current_dot(ctx, layout);
   if (!climate_dual_target(ctx) && ui.handle_dot)
     climate_layout_handle_dot(ctx, layout);
@@ -2331,13 +2393,13 @@ inline void climate_control_open_modal(ClimateControlCtx *ctx) {
   lv_obj_add_flag(ui.menu_view, LV_OBJ_FLAG_HIDDEN);
 
   ui.menu_close_btn = control_modal_create_round_button(ui.panel, 32, "\U000F0156", ctx->icon_font,
-    DARK_BORDER, SECONDARY_GREY, ctx->width_compensation_percent);
+    theme_display_color(current_theme().border), theme_display_color(current_theme().surface_primary), ctx->width_compensation_percent);
   lv_obj_set_style_bg_opa(ui.menu_close_btn, LV_OPA_TRANSP, LV_PART_MAIN);
   lv_obj_set_style_border_width(ui.menu_close_btn, 0, LV_PART_MAIN);
   lv_obj_add_flag(ui.menu_close_btn, LV_OBJ_FLAG_HIDDEN);
-  lv_obj_add_event_cb(ui.menu_close_btn, [](lv_event_t *) {
+  bind_navigation_button_action(ui.menu_close_btn, [](lv_event_t *) {
     climate_hide_action_menu();
-  }, LV_EVENT_CLICKED, nullptr);
+  }, nullptr);
 
   ui.menu_mode_btn = climate_create_menu_tile(ui.menu_view, find_icon("Fire"), "Mode",
     ctx->icon_font, ctx->option_title_font, ctx->option_value_font,
@@ -2359,7 +2421,7 @@ inline void climate_control_open_modal(ClimateControlCtx *ctx) {
   lv_arc_set_range(ui.arc, ctx->min_tenths, ctx->max_tenths);
   lv_obj_set_style_bg_opa(ui.arc, LV_OPA_TRANSP, LV_PART_MAIN);
   lv_obj_set_style_border_width(ui.arc, 0, LV_PART_MAIN);
-  lv_obj_set_style_arc_color(ui.arc, lv_color_hex(DARK_TRACK_BACKGROUND), LV_PART_MAIN);
+  lv_obj_set_style_arc_color(ui.arc, lv_color_hex(theme_display_color(current_theme().track_background)), LV_PART_MAIN);
   lv_obj_set_style_arc_rounded(ui.arc, true, LV_PART_MAIN);
   lv_obj_set_style_arc_rounded(ui.arc, true, LV_PART_INDICATOR);
   lv_obj_set_style_bg_opa(ui.arc, LV_OPA_TRANSP, LV_PART_KNOB);
@@ -2395,7 +2457,8 @@ inline void climate_control_open_modal(ClimateControlCtx *ctx) {
   }, LV_EVENT_PRESS_LOST, nullptr);
 
   ui.current_dot = lv_obj_create(ui.panel);
-  lv_obj_set_style_bg_color(ui.current_dot, lv_color_hex(DARK_CONTROL_NEUTRAL), LV_PART_MAIN);
+  theme_set_control_neutral_fill(ui.current_dot);
+  lv_obj_set_style_bg_color(ui.current_dot, lv_color_hex(theme_display_color(current_theme().control_neutral)), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(ui.current_dot, LV_OPA_COVER, LV_PART_MAIN);
   lv_obj_set_style_border_width(ui.current_dot, 0, LV_PART_MAIN);
   lv_obj_set_style_shadow_width(ui.current_dot, 0, LV_PART_MAIN);
@@ -2405,7 +2468,8 @@ inline void climate_control_open_modal(ClimateControlCtx *ctx) {
   lv_obj_add_flag(ui.current_dot, LV_OBJ_FLAG_HIDDEN);
 
   ui.handle_dot = lv_obj_create(ui.panel);
-  lv_obj_set_style_bg_color(ui.handle_dot, lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
+  theme_set_primary_foreground_fill(ui.handle_dot);
+  lv_obj_set_style_bg_color(ui.handle_dot, lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(ui.handle_dot, LV_OPA_COVER, LV_PART_MAIN);
   lv_obj_set_style_border_width(ui.handle_dot, 0, LV_PART_MAIN);
   lv_obj_set_style_shadow_width(ui.handle_dot, 0, LV_PART_MAIN);
@@ -2427,14 +2491,14 @@ inline void climate_control_open_modal(ClimateControlCtx *ctx) {
   lv_obj_clear_flag(ui.target_row, LV_OBJ_FLAG_SCROLLABLE);
 
   ui.target_lbl = lv_label_create(ui.target_row);
-  lv_obj_set_style_text_color(ui.target_lbl, lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
+  lv_obj_set_style_text_color(ui.target_lbl, lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
   lv_obj_set_style_text_align(ui.target_lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   if (ctx->number_font) lv_obj_set_style_text_font(ui.target_lbl, ctx->number_font, LV_PART_MAIN);
   apply_text_width_compensation(ui.target_lbl);
 
   auto create_range_target_label = [&]() {
     lv_obj_t *label = lv_label_create(ui.target_row);
-    lv_obj_set_style_text_color(label, lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
+    lv_obj_set_style_text_color(label, lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
     lv_obj_set_style_text_opa(label, LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_set_style_bg_opa(label, LV_OPA_TRANSP, LV_PART_MAIN);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
@@ -2452,7 +2516,7 @@ inline void climate_control_open_modal(ClimateControlCtx *ctx) {
   ui.target_separator_lbl = lv_label_create(ui.target_row);
   lv_label_set_display_text(ui.target_separator_lbl, "-");
   lv_obj_set_style_text_color(ui.target_separator_lbl,
-                              lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
+                              lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
   lv_obj_set_style_text_align(ui.target_separator_lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   const lv_font_t *range_font = ctx->range_number_font
     ? ctx->range_number_font : ctx->number_font;
@@ -2463,20 +2527,20 @@ inline void climate_control_open_modal(ClimateControlCtx *ctx) {
   ui.high_target_lbl = create_range_target_label();
 
   ui.unit_lbl = lv_label_create(ui.target_row);
-  lv_obj_set_style_text_color(ui.unit_lbl, lv_color_hex(DARK_TEXT_PRIMARY), LV_PART_MAIN);
+  lv_obj_set_style_text_color(ui.unit_lbl, lv_color_hex(current_theme().text_primary), LV_PART_MAIN);
   lv_obj_set_style_text_align(ui.unit_lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   if (ctx->unit_font) lv_obj_set_style_text_font(ui.unit_lbl, ctx->unit_font, LV_PART_MAIN);
   apply_text_width_compensation(ui.unit_lbl);
 
   ui.status_lbl = lv_label_create(ui.panel);
-  lv_obj_set_style_text_color(ui.status_lbl, lv_color_hex(DARK_TEXT_MUTED), LV_PART_MAIN);
+  lv_obj_set_style_text_color(ui.status_lbl, lv_color_hex(current_theme().text_muted), LV_PART_MAIN);
   lv_obj_set_style_text_align(ui.status_lbl, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
   if (ctx->label_font) lv_obj_set_style_text_font(ui.status_lbl, ctx->label_font, LV_PART_MAIN);
 
   ui.minus_btn = control_modal_create_round_button(ui.panel, 72, find_icon("Minus"), ctx->icon_font,
-    DARK_CONTROL_NEUTRAL, SECONDARY_GREY, ctx->width_compensation_percent);
+    theme_display_color(current_theme().control_neutral), theme_display_color(current_theme().surface_primary), ctx->width_compensation_percent);
   ui.plus_btn = control_modal_create_round_button(ui.panel, 72, find_icon("Plus"), ctx->icon_font,
-    DARK_CONTROL_NEUTRAL, SECONDARY_GREY, ctx->width_compensation_percent);
+    theme_display_color(current_theme().control_neutral), theme_display_color(current_theme().surface_primary), ctx->width_compensation_percent);
   climate_apply_step_button_icon_size(ui.minus_btn);
   climate_apply_step_button_icon_size(ui.plus_btn);
   lv_obj_add_event_cb(ui.minus_btn, [](lv_event_t *) {
@@ -2491,7 +2555,7 @@ inline void climate_control_open_modal(ClimateControlCtx *ctx) {
   }, LV_EVENT_CLICKED, nullptr);
 
   ui.range_toggle = lv_obj_create(ui.panel);
-  lv_obj_set_style_bg_color(ui.range_toggle, lv_color_hex(DARK_TRACK_BACKGROUND), LV_PART_MAIN);
+  lv_obj_set_style_bg_color(ui.range_toggle, lv_color_hex(theme_display_color(current_theme().track_background)), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(ui.range_toggle, LV_OPA_COVER, LV_PART_MAIN);
   lv_obj_set_style_border_width(ui.range_toggle, 0, LV_PART_MAIN);
   lv_obj_set_style_pad_all(ui.range_toggle, 3, LV_PART_MAIN);
@@ -2716,11 +2780,17 @@ inline void subscribe_climate_control_state(ClimateControlCtx *ctx) {
         if (!active()) return;
         std::string mode = climate_hvac_service_value(
           string_ref_limited(state, HA_SHORT_STATE_MAX_LEN));
-        if (mode != ctx->hvac_mode) climate_select_target_for_mode(ctx, mode);
+        if (mode != ctx->hvac_mode) {
+          climate_cancel_temperature_send(ctx);
+          climate_select_target_for_mode(ctx, mode);
+        }
         ctx->hvac_mode = mode;
         ctx->available = !climate_unavailable_value(ctx->hvac_mode);
         if (!ctx->available) ctx->hvac_mode = "off";
-        if (!ctx->available) climate_control_hide_modal();
+        if (!ctx->available) {
+          climate_cancel_temperature_send(ctx);
+          if (climate_control_modal_ui().active == ctx) climate_control_hide_modal();
+        }
         refresh();
       })
   );
@@ -2760,17 +2830,24 @@ inline void subscribe_climate_control_state(ClimateControlCtx *ctx) {
         refresh();
       })
   );
-  auto subscribe_temp = [ctx, refresh, active](const char *attr, int ClimateControlCtx::*field, bool ClimateControlCtx::*has_field) {
+  auto subscribe_temp = [ctx, refresh, active](const char *attr, int ClimateControlCtx::*field, bool ClimateControlCtx::*has_field, int ClimateControlCtx::*reported = nullptr) {
     ha_subscribe_attribute(
       ctx->entity_id, std::string(attr),
       std::function<void(esphome::StringRef)>(
-        [ctx, refresh, active, field, has_field](esphome::StringRef value) {
+        [ctx, refresh, active, field, has_field, reported](esphome::StringRef value) {
           if (!active()) return;
           int tenths = 0;
           if (climate_parse_tenths(value, tenths)) {
             // Home Assistant can send temperatures before min/max attributes on boot.
             // Store the real value and clamp only where the dial needs a bounded range.
-            ctx->*field = tenths;
+            if (reported) ctx->*reported = tenths;
+            // Protect only endpoints actually edited in this debounce window.
+            // A fresh report for the other endpoint belongs in the paired command.
+            const bool editing = ctx->pending_temp_send && (
+              (field == &ClimateControlCtx::target_tenths && ctx->pending_target_edit) ||
+              (field == &ClimateControlCtx::low_tenths && ctx->pending_low_edit) ||
+              (field == &ClimateControlCtx::high_tenths && ctx->pending_high_edit));
+            if (!editing) ctx->*field = tenths;
             ctx->*has_field = true;
           } else {
             ctx->*has_field = false;
@@ -2782,9 +2859,9 @@ inline void subscribe_climate_control_state(ClimateControlCtx *ctx) {
     );
   };
   subscribe_temp("current_temperature", &ClimateControlCtx::current_tenths, &ClimateControlCtx::has_current);
-  subscribe_temp("temperature", &ClimateControlCtx::target_tenths, &ClimateControlCtx::has_target);
-  subscribe_temp("target_temp_low", &ClimateControlCtx::low_tenths, &ClimateControlCtx::has_low);
-  subscribe_temp("target_temp_high", &ClimateControlCtx::high_tenths, &ClimateControlCtx::has_high);
+  subscribe_temp("temperature", &ClimateControlCtx::target_tenths, &ClimateControlCtx::has_target, &ClimateControlCtx::reported_target_tenths);
+  subscribe_temp("target_temp_low", &ClimateControlCtx::low_tenths, &ClimateControlCtx::has_low, &ClimateControlCtx::reported_low_tenths);
+  subscribe_temp("target_temp_high", &ClimateControlCtx::high_tenths, &ClimateControlCtx::has_high, &ClimateControlCtx::reported_high_tenths);
   ha_subscribe_attribute(
     ctx->entity_id, std::string("min_temp"),
     std::function<void(esphome::StringRef)>(
@@ -2833,6 +2910,10 @@ inline void subscribe_climate_control_state(ClimateControlCtx *ctx) {
         [ctx, refresh, active, field](esphome::StringRef value) {
           if (!active()) return;
           ctx->*field = climate_parse_options(value);
+          // HVAC values are enums; custom fan/swing/preset values are exact IDs.
+          if (field == &ClimateControlCtx::hvac_modes) {
+            for (auto &mode : ctx->*field) mode = climate_hvac_service_value(mode);
+          }
           climate_mark_optional_subscription_needs(ctx);
           refresh();
         })

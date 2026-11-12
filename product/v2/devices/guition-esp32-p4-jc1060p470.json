@@ -16,13 +16,16 @@
       "name": "Guition JC1060P470",
       "docsPath": "/screens/jc1060p470"
     },
+    "web": {
+      "continuousCorners": true,
+      "btn": {
+        "smallTextSize": 1.757812
+      }
+    },
     "firmware": {
       "package": {
         "substitutions": {
-          "speaker_amplifier_pin": "\"GPIO11\""
-        },
-        "extraPackages": {
-          "speaker_output": "!include ../../common/device/speaker_output_p4.yaml"
+          "button_radius": "10px"
         }
       }
     }
@@ -37,6 +40,11 @@
           "wifi": "1000Hz",
           "ethernet": "20000Hz"
         }
+      }
+    },
+    "web": {
+      "grid": {
+        "gap": 0.976562
       }
     }
   }

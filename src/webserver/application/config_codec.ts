@@ -1,6 +1,12 @@
 import { state } from "../state/app_instance";
 import * as EspControlModel from "../model";
-import { configOptionEnabled, configOptionValue, setConfigOptionValue } from "../model/config_primitives";
+import {
+    configOptionEnabled,
+    configOptionValue,
+    normalizedCardColorOptions,
+    setConfigOptionValue,
+    withoutCardColorOptions,
+} from "../model/config_primitives";
 import {
     CARD_SIZE_EXTRA_LARGE,
     CARD_SIZE_LANDSCAPE_LARGE,
@@ -128,7 +134,7 @@ export function createConfigCodecFeature(
         imageIconEnabled,
         normalizeImageOptions,
     } = imageOptions;
-    const { normalizeWeatherCardMode } = weatherOptions;
+    const { normalizeWeatherCardMode, weatherWindUsesSensors, normalizeWeatherOptions } = weatherOptions;
     const { normalizeWebhookConfig, webhookMethod } = webhookOptions;
     const {
         lawnMowerModeDefaultIcon,
@@ -400,9 +406,10 @@ export function createConfigCodecFeature(
         if (wasLegacyForecast && b.label === "Weather")
             b.label = "";
         b.precision = normalizeWeatherCardMode(b.precision);
+        if (!weatherWindUsesSensors(b)) b.sensor = "";
     }
     function normalizeSavedConfigWeatherOptions(this: any, options?: any, b?: any) {
-        return b && cardLargeNumbersSupported(b) ? copyLargeNumbersOption("", options || "") : "";
+        return normalizeWeatherOptions(options, b);
     }
     function normalizeSavedConfigImageFields(this: any, b?: any) {
         if (!b)
@@ -447,8 +454,9 @@ export function createConfigCodecFeature(
         return normalizeSubpageOptions(options || "", b && b.sensor, b && b.precision);
     }
     function normalizeButtonConfig(this: any, b?: any) {
+        var cardColorOptions: any = b ? normalizedCardColorOptions(b.options) : "";
         if (b)
-            b.options = b.options || "";
+            b.options = withoutCardColorOptions(b.options || "");
         if (b)
             migrateSavedConfigActionLegacy(b);
         var wasLegacyTextSensor: any = !!(b && b.type === "text_sensor");
@@ -487,9 +495,10 @@ export function createConfigCodecFeature(
         var normalizedSavedSensor: any = !!(b && normalizeSavedConfigSensor(b, wasLegacyTextSensor, normalizeSavedConfigSensorFields, normalizeSensorOptions));
         var normalizedSavedOccupancy: any = !!(b && normalizeSavedConfigOccupancy(b, normalizeSavedConfigOccupancyFields, normalizeSavedConfigOccupancyOptions));
         var normalizedSavedSwitch: any = !!(b && !normalizedSavedSensor && normalizeSavedConfigSwitch(b, normalizeSwitchConfirmationOptions));
-        if (b && !normalizedSavedSensor && !normalizedSavedSwitch && !normalizedSavedAccess && !normalizedSavedOccupancy && !normalizedSavedStatic && !normalizedSavedFan && !normalizedSavedMower && b.type !== "action" && b.type !== "alarm" && b.type !== "alarm_action" && !isClimateCardType(b.type) && b.type !== "webhook" && b.type !== "media" && b.type !== "subpage" && b.type !== "image" && b.type !== "wifi_qr" && b.type !== "wifi_qr_card" && b.type !== "light_control" && b.type !== "vacuum" && !cardLargeNumbersSupported(b)) {
+        if (b && !normalizedSavedSensor && !normalizedSavedSwitch && !normalizedSavedAccess && !normalizedSavedOccupancy && !normalizedSavedStatic && !normalizedSavedFan && !normalizedSavedMower && b.type !== "action" && b.type !== "alarm" && b.type !== "alarm_action" && !isClimateCardType(b.type) && b.type !== "webhook" && b.type !== "media" && b.type !== "subpage" && b.type !== "image" && b.type !== "wifi_qr" && b.type !== "wifi_qr_card" && b.type !== "light_control" && b.type !== "vacuum" && b.type !== "weather" && !cardLargeNumbersSupported(b)) {
             b.options = "";
         }
+        if (b && cardColorOptions) b.options = [b.options || "", cardColorOptions].filter(Boolean).join(",");
         return b;
     }
     function isBrightnessSliderType(this: any, type?: any) {
@@ -605,8 +614,8 @@ export function createConfigCodecFeature(
         if (type === "calendar" && precision !== "datetime")
             precision = "";
         if (type === "weather") {
-            sensor = "";
             precision = normalizeWeatherCardMode(precision);
+            if (!weatherWindUsesSensors({ precision, options: b && b.options })) sensor = "";
         }
         if (type === "image") {
             iconOn = "Auto";
@@ -617,6 +626,8 @@ export function createConfigCodecFeature(
         if (type === "door_window")
             precision = normalizeDoorWindowSubtype(precision);
         var options: any = b && b.options || "";
+        var cardColorOptions: any = normalizedCardColorOptions(options);
+        options = withoutCardColorOptions(options);
         if (type === "") {
             options = normalizeSwitchConfirmationOptions(options);
         }
@@ -641,7 +652,7 @@ export function createConfigCodecFeature(
             options = normalizeMediaOptions(options, sensor);
         }
         else if (type === "weather") {
-            options = cardLargeNumbersSupported({ type: type, precision: precision }) ? copyLargeNumbersOption("", options) : "";
+            options = normalizeWeatherOptions(options, { precision });
         }
         else if (type === "subpage") {
             options = normalizeSubpageOptions(options, sensor, precision);
@@ -655,8 +666,11 @@ export function createConfigCodecFeature(
             precision = webhookButton.precision || "";
             options = webhookButton.options || "";
         }
-        else if (type === "lock" || type === "screen_lock") {
+        else if (type === "lock") {
             options = "";
+        }
+        else if (type === "screen_lock") {
+            options = configOptionEnabled(options, "screensaver_on_lock") ? "screensaver_on_lock" : "";
         }
         else if (type === "calendar" || type === "clock" || type === "timezone") {
             options = normalizeDateTimeOptions(type, options, precision);
@@ -701,7 +715,7 @@ export function createConfigCodecFeature(
         else if (isActionOptionSelect || isFanCardType(type)) {
             options = "";
         }
-        else if (type !== "action" && type !== "alarm_action" && !isClimateCardType(type) && type !== "cover" && type !== "garage" && type !== "gate" && type !== "webhook" && type !== "screen_lock" && type !== "media" && type !== "presence" && type !== "light_control" && type !== "fan_control" && !cardLargeNumbersSupported({ type: type, precision: precision })) {
+        else if (type !== "action" && type !== "alarm_action" && !isClimateCardType(type) && type !== "cover" && type !== "garage" && type !== "gate" && type !== "webhook" && type !== "screen_lock" && type !== "media" && type !== "presence" && type !== "light_control" && type !== "fan_control" && type !== "weather" && !cardLargeNumbersSupported({ type: type, precision: precision })) {
             options = "";
         }
         if (type === "image") {
@@ -746,6 +760,7 @@ export function createConfigCodecFeature(
             unit = "";
             precision = "";
         }
+        if (cardColorOptions) options = [options || "", cardColorOptions].filter(Boolean).join(",");
         return trimConfigFields([
             (type === "door_window" || type === "presence" || type === "screen_lock") ? "" : (b && b.entity || ""),
             label,
@@ -801,7 +816,7 @@ export function createConfigCodecFeature(
         return EspControlModel.parseSubpageOrder(orderStr);
     }
     function subpageOrderForSerialize(this: any, sp?: any) {
-        return EspControlModel.subpageOrderForSerialize((sp && sp.order) || [], sp && sp.backLabel);
+        return EspControlModel.subpageOrderForSerialize((sp && sp.order) || [], sp && sp.backLabel, sp && sp.backColor);
     }
     function subpageSerializedOrder(this: any, sp?: any) {
         if (!sp)
@@ -966,7 +981,7 @@ export function createConfigCodecFeature(
         return subpage;
     }
     function buildSubpageGrid(this: any, sp?: any) {
-        var result: any = EspControlModel.buildSubpageGrid(sp, layout.numSlots, layout.gridCols);
+        var result: any = EspControlModel.buildSubpageGrid(sp, layout.totalSlots, layout.gridCols);
         sp.grid = result.grid;
         sp.sizes = result.sizes;
         return sp.grid;
@@ -978,7 +993,7 @@ export function createConfigCodecFeature(
         return JSON.stringify(sp.order) !== previousOrder;
     }
     function serializeSubpageGrid(this: any, sp?: any) {
-        return EspControlModel.serializeSubpageGrid(sp.grid, sp.sizes || {}, sp.backLabel || "Back");
+        return EspControlModel.serializeSubpageGrid(sp.grid, sp.sizes || {}, sp.backLabel || "Back", sp.backColor);
     }
     function enterSubpage(this: any, homeSlot?: any) {
         state.editingSubpage = homeSlot;

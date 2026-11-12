@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Compile and exercise the pure cover-art policy, layout, and state helpers."""
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -173,7 +174,8 @@ int main() {
   auto seven_v2 = cover_art_layout("guition-esp32-p4-jc1060p470-v2", "0", 1024, 600, 600, 260);
   assert(seven_v2.split && seven_v2.art_size == 600 && seven_v2.panel_x == 615);
   // The 7-inch font has 89px lines with -8px spacing: four lines use 332px.
-  for (const auto &slug : {"guition-esp32-p4-jc1060p470", "guition-esp32-p4-jc1060p470-v2"}) {
+  for (const auto &slug : {"guition-esp32-p4-jc1060p470", "guition-esp32-p4-jc1060p470-v2",
+                           "guition-esp32-p4-jc1060p470-v3"}) {
     for (const auto &rotation : {"0", "180"}) {
       const auto layout = cover_art_layout(slug, rotation, 1024, 600, 600, 260);
       const auto button = playback_button_layout(layout, 89, -8);
@@ -188,6 +190,16 @@ int main() {
       const auto layout = cover_art_layout(slug, rotation, 600, 1024, 600, 260);
       assert(layout.title_max_lines == 0 && layout.title_max_height == 162);
     }
+  }
+  // Both 4.3-inch chip revisions must retain the portrait layout and rotation convention.
+  for (const auto &rotation : {"0", "90", "180", "270"}) {
+    const auto original = cover_art_layout("guition-esp32-p4-jc4880p443", rotation, 480, 800, 480, 130);
+    const auto v3 = cover_art_layout("guition-esp32-p4-jc4880p443-v3", rotation, 480, 800, 480, 130);
+    assert(v3.split && v3.screen_width == original.screen_width && v3.screen_height == original.screen_height);
+    assert(v3.panel_x == original.panel_x && v3.panel_y == original.panel_y);
+    assert(v3.title_max_lines == original.title_max_lines && v3.title_max_height == original.title_max_height);
+    assert(rotation_is_landscape("guition-esp32-p4-jc4880p443-v3", rotation) ==
+           rotation_is_landscape("guition-esp32-p4-jc4880p443", rotation));
   }
   auto four = cover_art_layout("guition-esp32-p4-jc4880p443", "90", 800, 480, 480, 220);
   assert(four.screen_width == 800);
@@ -363,18 +375,11 @@ for required in (
         raise SystemExit(f"P4 artwork job safety contract missing: {required}")
 
 jpeg_decoder = (ROOT / "components" / "artwork_image" / "jpeg_image.cpp").read_text(encoding="utf-8")
-for required in (
-    """if (!this->set_size(target_width, target_height)) {
-      p4_release_jpeg_workspace();
-      return DECODE_ERROR_OUT_OF_MEMORY;
-    }""",
-    """if (!this->set_size(info.width, info.height)) {
-      p4_release_jpeg_workspace();
-      return DECODE_ERROR_OUT_OF_MEMORY;
-    }""",
-):
-    if required not in jpeg_decoder:
-        raise SystemExit("P4 JPEG workspace must be released after image buffer allocation failure")
+# Exercise buffer ownership on success and failure instead of requiring a
+# particular spelling of manual cleanup; the decoder now uses scoped ownership.
+subprocess.run(
+    [sys.executable, str(ROOT / "tests/firmware/p4_jpeg_memory_test.py")], check=True
+)
 
 if 'if (err == ESP_ERR_NOT_SUPPORTED) {' not in jpeg_decoder:
     raise SystemExit("P4 JPEG unsupported-format fallback must be handled explicitly")
@@ -913,5 +918,11 @@ compensation_call = "apply_width_compensation(id(cover_art_playback_button), ico
 assert compensation_call in layout_script
 assert layout_script.index(compensation_call) < layout_script.index("if (signature ==")
 assert "!${cover_art_square_overlay} || id(cover_art_playback_control_enabled).state" in layout_script
-assert "lv_obj_add_flag(id(cover_art_playback_button), LV_OBJ_FLAG_HIDDEN)" in layout_script
+assert "script.execute: cover_art_update_playback_control" in layout_script
+playback_update = yaml_script_body(screen, "cover_art_update_playback_control") or ""
+assert "espcontrol::screensaver_pin().cover_art_playback_allowed()" in playback_update
+assert "!${cover_art_square_overlay} || id(cover_art_playback_control_enabled).state" in playback_update
+assert "lv_obj_add_flag(id(cover_art_playback_button), LV_OBJ_FLAG_HIDDEN)" in playback_update
+pin_refresh = yaml_script_body((ROOT / "common/addon/backlight.yaml").read_text(), "screensaver_pin_refresh_ui") or ""
+assert "script.execute: cover_art_update_playback_control" in pin_refresh
 print("Cover art policy, layout, and state contract checks passed.")

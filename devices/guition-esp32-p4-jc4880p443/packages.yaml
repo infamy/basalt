@@ -30,20 +30,23 @@ substitutions:
   unit_font: font_text_body
   sensor_value_font: font_number_value
   padding: 21px
-  radius: 10px
+  radius: 32px
   main_page_card_gap: "14"
   main_page_pad_top: "50"
   main_page_compact_pad_top: "5"
   clock_bar_item_gap: "96"
   clock_bar_visual_gap: "12"
   clock_font_size: "140"
+  clock_date_font: font_text_body
   clock_cx: "240"
   clock_cy: "400"
   screen_saver_clock_min_brightness: "1"
   screen_saver_clock_default_brightness: "35"
   screen_schedule_clock_min_brightness: "1"
   screen_schedule_clock_default_brightness: "10"
-  speaker_amplifier_pin: "GPIO11"
+  button_radius: 10px
+  card_curve_small_radius: 8px
+  card_curve_medium_radius: 20px
   cover_art_size: "480"
   cover_art_decode_size: "480"
   cover_art_x: "0"
@@ -93,6 +96,7 @@ packages:
   esp32_c6_firmware_update: !include ../../common/device/esp32_c6_firmware_update.yaml
   icons:           !include ../../common/assets/icons.yaml
   fonts_lg:        !include device/fonts.yaml
+  theme_colors:    !include ../../common/theme/colors.yaml
   button_theme:    !include ../../common/theme/button.yaml
   # ---------------------------------------------------------------------------
   # Configuration (text/select/number components for web UI)
@@ -123,7 +127,6 @@ packages:
   network:         !include ../../common/addon/network.yaml
   memory_diag:     !include ../../common/addon/memory_diagnostics.yaml
   fw_update:       !include ../../common/addon/firmware_update.yaml
-  speaker_output:  !include ../../common/device/speaker_output_p4.yaml
 
   # ---------------------------------------------------------------------------
   # Screens (loading must be first page for LVGL startup)

@@ -27,6 +27,7 @@ struct NavigationSubpageEntry {
   std::string kind;
   lv_obj_t *screen = nullptr;
   lv_obj_t *back_button = nullptr;
+  bool back_neutral_background = true;
   BtnSlot back_slot{};
   struct Card {
     int index = 0;
@@ -34,6 +35,9 @@ struct NavigationSubpageEntry {
     BtnSlot slot{};
     SubpageBtn definition{};
     int display_order = 0;
+    bool neutral_background = true;
+    bool sensor_surface = false;
+    bool secondary_surface = false;
   };
   std::vector<Card> cards;
 };
@@ -264,22 +268,28 @@ inline bool navigation_restore_subpage_slot(int slot) {
 }
 
 inline void navigation_register_subpage_back_button(int slot,
-                                                    const BtnSlot &back_slot) {
+                                                    const BtnSlot &back_slot,
+                                                    bool neutral_background = true) {
   NavigationSubpageEntry *entry = navigation_find_slot(slot);
   if (entry != nullptr) {
     entry->back_button = back_slot.btn;
+    entry->back_neutral_background = neutral_background;
     entry->back_slot = back_slot;
   }
 }
 
 inline void navigation_register_subpage_card(int slot, int index,
                                              const BtnSlot &card_slot,
-                                             const SubpageBtn &definition) {
+                                             const SubpageBtn &definition,
+                                             bool neutral_background,
+                                             bool sensor_surface,
+                                             bool secondary_surface = false) {
   if (index <= 0 || card_slot.btn == nullptr) return;
   NavigationSubpageEntry *entry = navigation_find_slot(slot);
   if (entry == nullptr) return;
   entry->cards.push_back({index, card_slot.btn, card_slot, definition,
-                          static_cast<int>(entry->cards.size())});
+                          static_cast<int>(entry->cards.size()),
+                          neutral_background, sensor_surface, secondary_surface});
 }
 
 inline void navigation_retire_subpage(int slot, lv_obj_t *main_page_obj) {

@@ -3,6 +3,7 @@
   "private": true,
   "license": "PolyForm-Noncommercial-1.0.0",
   "scripts": {
+    "prepare:ci": "python3 scripts/prepare_ci.py",
     "check:all": "python3 scripts/check_tasks.py run all",
     "check:backup-contract": "python3 scripts/check_tasks.py run-task backup-contract",
     "check:card-contract-outputs": "python3 scripts/check_tasks.py run-task card-contract-outputs",
@@ -10,7 +11,6 @@
     "check:ci": "python3 scripts/check_tasks.py run ci",
     "check:config": "python3 scripts/check_tasks.py run-task config",
     "check:cover-art-contract": "python3 scripts/check_tasks.py run-task cover-art-contract",
-    "check:dev-docs": "python3 scripts/check_tasks.py run-task dev-docs",
     "check:device-matrix": "python3 scripts/check_tasks.py run-task device-matrix",
     "check:device-profiles": "python3 scripts/check_tasks.py run-task device-profiles",
     "check:device-api": "python3 scripts/check_tasks.py run-task device-api",
@@ -55,8 +55,11 @@
     "test": "npm run check:fast",
     "test:ci": "npm run check:ci",
     "test:firmware": "python3 scripts/check_tasks.py run-task firmware-tests",
+    "test:device-web": "python3 scripts/test_device_web_transport.py",
+    "check:device-web-transport-tests": "python3 scripts/check_tasks.py run-task device-web-transport-tests",
     "test:web-unit": "python3 scripts/check_tasks.py run-task web-unit",
     "test:web-browser": "python3 scripts/check_tasks.py run-task web-browser-smoke",
+    "test:preview-resize": "node scripts/check_preview_resize.js",
     "test:mutations": "python3 scripts/check_tasks.py run-task mutations",
     "webserver:build": "python3 scripts/build.py www",
     "docs:check-installer": "node scripts/check_docs_installer.js --browser"
@@ -71,8 +74,8 @@
   },
   "overrides": {
     "esp-web-tools": {
-      "esptool-js": "0.7.0",
-      "@material/web": "2.5.0"
+      "esptool-js": "0.7.1",
+      "@material/web": "2.4.1"
     }
   }
 }

@@ -65,8 +65,8 @@ inline CoverControlCtx *cover_modal_driver_track(
 }
 
 struct CoverModalDriverEnvironment {
-  uint32_t accent_color = DEFAULT_SLIDER_COLOR;
-  uint32_t secondary_color = SECONDARY_GREY;
+  uint32_t accent_color = DEFAULT_ACCENT_COLOR;
+  uint32_t secondary_color = theme_display_color(current_theme().surface_primary);
   const lv_font_t *option_title_font = nullptr;
   const lv_font_t *option_value_font = nullptr;
   const lv_font_t *option_menu_font = nullptr;
@@ -81,7 +81,7 @@ inline CoverModalDriverEnvironment cover_modal_driver_environment(
     const BtnSlot &slot) {
   CoverModalDriverEnvironment environment;
   environment.accent_color = palette.has_on
-    ? palette.on_val : DEFAULT_SLIDER_COLOR;
+    ? palette.on_val : DEFAULT_ACCENT_COLOR;
   environment.secondary_color = palette.off_val;
   environment.option_title_font = display_climate_option_title_font(display)
     ? display_climate_option_title_font(display)
@@ -134,11 +134,11 @@ inline bool cover_modal_driver_bind_subpage(
   if (environment.add_parent_indicator) {
     environment.add_parent_indicator(cover->entity_id);
   }
-  lv_obj_add_event_cb(slot.btn, [](lv_event_t *event) {
+  bind_navigation_button_action(slot.btn, [](lv_event_t *event) {
     CoverControlCtx *context = static_cast<CoverControlCtx *>(
       lv_event_get_user_data(event));
     if (context) cover_control_open_modal(context);
-  }, LV_EVENT_CLICKED, cover);
+  }, cover);
   return true;
 }
 

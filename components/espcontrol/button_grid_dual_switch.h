@@ -34,7 +34,7 @@ struct DualSwitchCtx {
   lv_obj_t *root = nullptr;
   bool side_by_side = false;
   uint32_t on_color = DEFAULT_SLIDER_COLOR;
-  lv_color_t text_color = lv_color_hex(DARK_TEXT_PRIMARY);
+  lv_color_t text_color = lv_color_hex(current_theme().text_primary);
   int icon_px = 0;
   int text_px = 0;
   DualSwitchHalf halves[2];
@@ -66,6 +66,8 @@ inline void dual_switch_apply_half(DualSwitchCtx *ctx, int index) {
   if (!ctx || index < 0 || index > 1) return;
   DualSwitchHalf &half = ctx->halves[index];
   if (!half.badge || !half.icon_lbl) return;
+  // Follow the card's current text colour so light/dark theme changes apply.
+  if (ctx->btn) ctx->text_color = lv_obj_get_style_text_color(ctx->btn, LV_PART_MAIN);
   lv_obj_set_style_bg_color(half.badge,
     half.on ? lv_color_hex(ctx->on_color) : ctx->text_color, LV_PART_MAIN);
   lv_obj_set_style_bg_opa(half.badge, half.on ? LV_OPA_COVER : LV_OPA_10, LV_PART_MAIN);

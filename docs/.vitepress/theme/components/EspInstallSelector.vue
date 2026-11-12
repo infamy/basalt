@@ -39,18 +39,20 @@
         </button>
         <div v-if="device.versions.length > 1" class="device-version">
           <label :for="`${device.slug}-version`">Hardware version</label>
-          <select
-            :id="`${device.slug}-version`"
-            v-model="selectedVersions[device.slug]"
-            :aria-label="`${device.size} hardware version`"
-            :aria-describedby="`${device.slug}-revision`"
-            @change="selectDevice(device)"
-          >
-            <option disabled value="">Choose hardware version</option>
-            <option v-for="version in device.versions" :key="version.slug" :value="version.slug">
-              {{ version.label }}
-            </option>
-          </select>
+          <span class="device-version-control">
+            <select
+              :id="`${device.slug}-version`"
+              v-model="selectedVersions[device.slug]"
+              :aria-label="`${device.size} hardware version`"
+              :aria-describedby="`${device.slug}-revision`"
+              @change="selectDevice(device)"
+            >
+              <option disabled value="">Choose hardware version</option>
+              <option v-for="version in device.versions" :key="version.slug" :value="version.slug">
+                {{ version.label }}
+              </option>
+            </select>
+          </span>
           <span :id="`${device.slug}-revision`" class="device-revision">
             {{ selectedVersion(device)?.revision }}
           </span>
@@ -61,10 +63,6 @@
     <div class="installer-actions">
       <div v-if="!selected" class="installer-status">
         Choose your display and hardware version above to enable USB installation.
-      </div>
-      <div v-else-if="selected.unsupported" class="installer-status warning">
-        The 4.3-inch JC4880P443 V3 (ESP32-P4 v3.x) is not supported yet.
-        Do not install the original-panel firmware on this revision.
       </div>
       <div v-else-if="!checked" class="installer-status">
         Preparing installer...
@@ -151,6 +149,12 @@ const devices = [
     shape: 'landscape',
     versions: [
       {
+        slug: 'guition-esp32-p4-jc1060p470-v3',
+        number: 3,
+        label: 'V3 — Production silicon',
+        revision: 'ESP32-P4 v3.1–v3.99; confirmed on v3.2; check chip information first'
+      },
+      {
         slug: 'guition-esp32-p4-jc1060p470',
         number: 1,
         label: 'V1 — Original panel',
@@ -185,9 +189,8 @@ const devices = [
       {
         slug: 'guition-esp32-p4-jc4880p443-v3',
         number: 3,
-        label: 'V3 — Not yet supported',
-        revision: 'ESP32-P4 v3.x production silicon; firmware support is pending',
-        unsupported: true
+        label: 'V3 — Production silicon',
+        revision: 'SKU 10150002-V3; ESP32-P4 v3.x chip (including v3.2)'
       }
     ]
   },
@@ -252,7 +255,7 @@ const manifestAvailable = ref(false)
 const loadError = ref('')
 let manifestRequest = 0
 
-const manifestUrl = computed(() => selected.value && !selected.value.unsupported
+const manifestUrl = computed(() => selected.value
   ? withBase(`/firmware/${selected.value.slug}/manifest.json`)
   : '')
 
@@ -380,15 +383,34 @@ onMounted(() => {
 .device-version select {
   width: 100%;
   min-width: 0;
-  padding: 8px 10px;
+  padding: 8px 36px 8px 10px;
   border: 1px solid var(--vp-c-border);
   border-radius: 6px;
   color: var(--vp-c-text-1);
   background: var(--vp-c-bg);
   font: inherit;
   font-size: 13px;
-  appearance: auto;
+  appearance: none;
   cursor: pointer;
+}
+
+.device-version-control {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.device-version-control::after {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid var(--vp-c-text-2);
+  border-bottom: 1.5px solid var(--vp-c-text-2);
+  content: "";
+  pointer-events: none;
+  transform: translateY(-70%) rotate(45deg);
 }
 
 .device-screen {

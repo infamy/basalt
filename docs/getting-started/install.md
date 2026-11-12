@@ -24,24 +24,13 @@ If you want to compile and install the firmware yourself, use the [Manual Setup 
 
 ## Flash the Firmware
 
-Connect the display to your computer with the USB-C cable, choose your device and hardware version, then click the install button. Select the hardware version that matches your panel; no version is preselected for models with multiple revisions. The 4.3-inch JC4880P443 V3 is not supported yet.
+Connect the display to your computer with the USB-C cable, choose your device and hardware version, then click the install button. Select the hardware version that matches your panel; no version is preselected for models with multiple revisions. For the 4.3-inch JC4880P443, select V3 only for SKU 10150002-V3 with an ESP32-P4 v3.x chip; see the [V3 guide](/screens/jc4880p443-v3) if a previous incompatible flash left it dark.
 
 <EspInstallSelector />
 
-### USB installation and BOOT mode
-
-The **10.1-inch V3 supports this browser USB installer**. Its restriction applies to browser firmware uploads over WiFi (OTA), not USB installation. Use native ESPHome OTA for later updates.
-
-If installation cannot connect or asks for BOOT, unplug the programming USB cable, hold **BOOT/download**, reconnect the cable, then release BOOT when the serial port appears. Select that port and retry. After flashing, release BOOT and reset or power-cycle the display to start Basalt. See the [10.1-inch V3 manual USB fallback](/screens/jc8012p4a1-v3#manual-usb-fallback) if it still fails.
-
 ## Having Unreliable Wifi on a P4 Panel?
 
-P4 panels use a separate ESP32-C6 Wifi processor. If a P4 panel repeatedly
-disconnects, disappears from Home Assistant, cannot finish initial setup, or reports
-C6 update timeouts, use the [C6 Wifi recovery installer](/getting-started/c6-recovery).
-It repairs the C6 over USB without requiring a working network connection.
-
-This recovery does not apply to the ESP32-S3 4848S040 panel.
+For repeated disconnections or failed initial setup, follow the [P4 WiFi checks](/getting-started/troubleshooting#a-p4-panel-has-unreliable-wifi).
 
 ::: tip Which cable?
 If the install button doesn't detect your device, try a different USB-C cable. Charge-only cables (often thinner and cheaper) won't work — you need one that supports data transfer.
@@ -58,10 +47,12 @@ If the install button doesn't detect your device, try a different USB-C cable. C
 
 After flashing, the display needs to connect to your WiFi network.
 
-1. **The display creates a hotspot.** It can take up to **90 seconds** to appear. Connect to it from your phone or laptop.
+Configure WiFi through the display's setup hotspot:
+
+1. **The display creates a hotspot.** It can take up to **90 seconds** to appear. Connect to the `EspControl_XXXX` network named on the display from your phone or laptop; `XXXX` is the last four characters of the device MAC address. A custom hotspot name configured in ESPHome is kept.
 2. **A setup page opens automatically** (captive portal). If it doesn't, open a browser and go to `192.168.4.1`.
-3. **Choose your WiFi network** from the list and enter your password.
-4. **The display reconnects** and shows a loading screen while it joins your network. Once connected, the screen will show your device's address (something like `192.168.1.xxx`).
+3. **Choose your WiFi network** from **Available Networks** and enter your password, then select **Save**. You can also type a network name manually.
+4. When **WiFi details saved** appears, **reconnect your phone or laptop to your home WiFi**, then follow the display's instructions to continue setup.
 
 ::: tip If the hotspot doesn't appear
 Power-cycle the display by unplugging and re-plugging the USB-C cable. The hotspot only appears when the display can't connect to a saved WiFi network, and it may take up to **90 seconds** after startup or a WiFi outage.
@@ -83,8 +74,8 @@ With the display connected to WiFi and paired with Home Assistant, you're ready 
 
 1. **Find the device's address.** It's shown on the display screen. You can also find it in your router's device list or in **Home Assistant > Settings > Devices & Services > ESPHome** (click the device, then look for the IP address).
 2. **Open that address in a browser** — for example, `http://espcontrol.local`. This opens the device's built-in web page.
-3. **Add your cards.** On the **Screen** tab, tap an empty slot and choose the card type you want. For example, a **Switch** card controls a Home Assistant entity, while a **Sensor** card displays a reading.
-4. **Adjust your settings.** On the **Settings** tab, set your active card colour, temperatures, screensaver timeout, brightness, and more.
+3. **Add your cards.** On the **Layout** tab, tap an empty slot and choose the card type you want. For example, a **Switch** card controls a Home Assistant entity, while a **Sensor** card displays a reading.
+4. **Adjust your settings.** Use **Screen** for appearance, brightness, rotation, and sleep options, and **System** for language, time, temperature, and system controls.
 5. **Tap "Apply Configuration"** when you're done. The display restarts with your new settings.
 
 That's it — your panel is ready to use. See the [Setup](/features/setup) guide for a full walkthrough of every setting.

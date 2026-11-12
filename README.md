@@ -1,4 +1,4 @@
-![Basalt on a 7-inch touchscreen: home screen with temperature, clock, and control tiles](docs/public/images/home_screen_hero.jpg)
+![Basalt touchscreens showing colourful Home Assistant controls, temperature, weather, and media cards](docs/public/images/home_screen_hero.jpg)
 
 # Basalt
 
@@ -43,7 +43,7 @@ Basalt works with devices and helpers that are already in Home Assistant, includ
 
 If Home Assistant can see it, Basalt is designed to make it easier to put that control or information on a touchscreen.
 
-![Web-based card configuration on the 4-inch 4848S040](docs/public/images/4848s040-buttons.png)
+![EspControl touchscreen panels showing colourful controls, temperatures, media, and radar images](docs/public/images/screens-hero.jpg)
 
 ## How It Works
 
@@ -64,7 +64,7 @@ Basalt supports several low-cost ESP32 touchscreens. Larger screens give you mor
 
 | | 10.1" JC8012P4A1 | 7" JC1060P470 | 4.3" JC4880P443 | 4" ESP32-P4 86 Panel | 4" 4848S040 |
 |---|:-:|:-:|:-:|:-:|:-:|
-| Image | Image pending | ![7-inch JC1060P470](docs/public/images/jc1060p470-hero.jpg) | ![4.3-inch JC4880P443](docs/public/images/jc4880p443-hero.jpg) | Image pending | ![4-inch 4848S040](docs/public/images/4848s040-hero.jpg) |
+| Image | ![10.1-inch JC8012P4A1](docs/public/images/jc8012p4a1-hero.jpg) | ![7-inch JC1060P470](docs/public/images/jc1060p470-hero.jpg) | ![4.3-inch JC4880P443 in landscape](docs/public/images/jc4880p443-hero.jpg) | ![4-inch ESP32-P4 86 Panel](docs/public/images/p4-86-hero.jpg) | ![4-inch 4848S040](docs/public/images/4848s040-hero.jpg) |
 | Layout | 1280x800 landscape · 20 card slots | 1024x600 landscape · 15 card slots | 480x800 portrait · 6 card slots | 720x720 square · 9 card slots | 480x480 square · 9 card slots |
 | Processor | ESP32-P4 | ESP32-P4 | ESP32-P4 | ESP32-P4 | ESP32-S3 |
 | Panel | [AliExpress ~£40](https://www.aliexpress.com/item/1005008789890066.html) | [AliExpress ~£40](https://www.aliexpress.com/item/1005010023056143.html) | [AliExpress ~£24](https://www.aliexpress.com/item/1005009673625472.html) | [AliExpress ~£45](https://www.aliexpress.com/item/1005009476605517.html) | [AliExpress ~£16](https://www.aliexpress.com/item/1005008214679682.html) |

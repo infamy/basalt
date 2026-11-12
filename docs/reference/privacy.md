@@ -34,9 +34,9 @@ The site does not intentionally use cookies, advertising trackers, or a
 first-party analytics service. Its search is generated and run in your
 browser.
 
-The install and C6 recovery pages also automatically load the USB installer
-library from unpkg when the browser supports Web Serial, and the install pages
-check a public firmware manifest. These browser requests may disclose normal
+Pages with a USB installer load its library from this documentation site when
+the installer is prepared in a browser that supports Web Serial. These pages
+also check public firmware manifests. These browser requests may disclose normal
 request metadata, such as your IP address, browser and device information, and
 request time, to the relevant hosting providers. The library is not loaded on
 other documentation pages unless one of these installer components is used.
@@ -46,7 +46,7 @@ third-party websites. Those sites have their own terms and privacy practices.
 
 ## The Basalt firmware and device
 
-The firmware does not send your smart-home data to an Basalt server. It
+The firmware does not send your smart-home data to a Basalt server. It
 normally exchanges data directly with your Home Assistant instance over your
 local network, including entity states, names, media information, weather
 data, and commands needed for the cards you configure. Home Assistant and any

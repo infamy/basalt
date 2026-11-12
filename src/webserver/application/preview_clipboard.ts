@@ -209,7 +209,7 @@ export function createPreviewClipboardFeature(
             layoutSlots.unshift(-2);
             requestedSizes[-2] = 1;
         }
-        if (orderedSlots.length > dependencies.layout.numSlots) {
+        if (orderedSlots.length > dependencies.layout.previewSlots) {
             throw cardTransferError("A copied subpage has more cards than this controller can display.");
         }
         var targetSizes: any = {};
@@ -220,8 +220,8 @@ export function createPreviewClipboardFeature(
                 : {};
             targetSizes[requestedSlot] = normalizeCardSizeForConfig(requestedButton, requestedSizes[requestedSlot]);
         }
-        var placementOrder: any = layoutSlots.length <= dependencies.layout.numSlots ? layoutSlots : orderedSlots;
-        var targetGrid: any = placeOrderedGridEntries(placementOrder, targetSizes, dependencies.layout.numSlots);
+        var placementOrder: any = layoutSlots.length <= dependencies.layout.previewSlots ? layoutSlots : orderedSlots;
+        var targetGrid: any = placeOrderedGridEntries(placementOrder, targetSizes, dependencies.layout.previewSlots);
         var placed: any = {};
         targetGrid.forEach(function (slot: any) {
             if (slot > 0 || slot === -2)
@@ -262,6 +262,7 @@ export function createPreviewClipboardFeature(
             grid: grid,
             sizes: sizes,
             backLabel: parsed.backLabel || "Back",
+            backColor: parsed.backColor || "",
         };
         subpage.order = serializeSubpageGrid(subpage);
         return { subpage: subpage, resized: resized };
@@ -345,7 +346,7 @@ export function createPreviewClipboardFeature(
     }
     function clipboardSubpageFits(sp: any) {
         var serialized: any = serializeSubpageConfig(sp);
-        return !!EspControlModel.splitSubpageConfigChunks(serialized, configPersistence.subpageEntityKeys().length, 255);
+        return configPersistence.subpageConfigFits(serialized);
     }
     function planMainClipboardPaste(entries: any, pos: any) {
         var nextGrid: any = state.grid.slice();
@@ -359,18 +360,18 @@ export function createPreviewClipboardFeature(
         var slots: any = [];
         var resized: any = 0;
         for (var i: any = 0; i < entries.length; i++) {
-            var newSlot: any = firstUnusedClipboardSlot(nextGrid, dependencies.layout.numSlots);
+            var newSlot: any = firstUnusedClipboardSlot(nextGrid, dependencies.layout.previewSlots);
             if (newSlot < 0)
                 return { error: "There is not enough room to paste every card." };
             var entry: any = entries[i];
             var requestedSize: any = entry.size || 1;
-            var placement: any = findDuplicatePlacement(nextGrid, pos, requestedSize, dependencies.layout.numSlots);
+            var placement: any = findDuplicatePlacement(nextGrid, pos, requestedSize, dependencies.layout.previewSlots);
             if (placement.pos < 0)
                 return { error: "There is not enough room to paste every card." };
             if (placement.size !== requestedSize)
                 resized++;
             var buttonConfig: any = clipboardButtonConfig(entry);
-            if (serializeButtonConfig(buttonConfig).length > 255) {
+            if (new TextEncoder().encode(serializeButtonConfig(buttonConfig)).length > configPersistence.buttonConfigByteLimit()) {
                 return { error: "A copied card's settings are too large for this controller." };
             }
             nextButtons[newSlot - 1] = buttonConfig;
@@ -411,6 +412,7 @@ export function createPreviewClipboardFeature(
             grid: (sp.grid || []).slice(),
             sizes: cloneSizeMap(sp.sizes),
             backLabel: sp.backLabel || "Back",
+            backColor: sp.backColor || "",
         };
     }
     function planSubpageClipboardPaste(entries: any, pos: any) {
@@ -428,11 +430,11 @@ export function createPreviewClipboardFeature(
                 return { error: "The " + cardTransferTypeLabel(entry.type || "") +
                         " card type cannot be placed inside a subpage." };
             }
-            var newSlot: any = firstUnusedClipboardSlot(subpage.grid, dependencies.layout.numSlots);
+            var newSlot: any = firstUnusedClipboardSlot(subpage.grid, dependencies.layout.previewSlots);
             if (newSlot < 0)
                 return { error: "There is not enough room to paste every card." };
             var requestedSize: any = entry.size || 1;
-            var placement: any = findDuplicatePlacement(subpage.grid, pos, requestedSize, dependencies.layout.numSlots);
+            var placement: any = findDuplicatePlacement(subpage.grid, pos, requestedSize, dependencies.layout.previewSlots);
             if (placement.pos < 0)
                 return { error: "There is not enough room to paste every card." };
             if (placement.size !== requestedSize)
@@ -547,7 +549,7 @@ export function createPreviewClipboardFeature(
         close.type = "button";
         close.className = "sp-transfer-close";
         close.innerHTML = '<svg class="sp-transfer-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-            '<path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.41L10.59 13.41 4.29 19.7 2.88 18.29 9.17 12 2.88 5.71 4.29 4.3l6.3 6.29 6.3-6.29z"></path>' +
+            '<path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>' +
             '</svg>';
         close.setAttribute("aria-label", "Close");
         close.addEventListener("click", closeCardTransferDialog);
@@ -566,8 +568,8 @@ export function createPreviewClipboardFeature(
         cardTransferOverlay = overlay;
         return dialog;
     }
-    function showCopyCardCode(slots: any) {
-        var code: any;
+    async function showCopyCardCode(slots: any) {
+        var code: string;
         try {
             code = cardTransferCodeForSlots(slots);
         }
@@ -575,79 +577,41 @@ export function createPreviewClipboardFeature(
             showBanner(error.cardTransferMessage || error.message || "Could not create card code.", "error");
             return;
         }
-        var dialog: any = createCardTransferDialog("Copy Code");
-        var intro: any = document.createElement("p");
-        intro.textContent = "Copy this code to another controller.";
-        dialog.appendChild(intro);
-        var textarea: any = document.createElement("textarea");
-        textarea.className = "sp-input sp-textarea sp-transfer-code";
-        textarea.readOnly = true;
-        textarea.value = code;
-        textarea.setAttribute("aria-label", "Card transfer code");
-        dialog.appendChild(textarea);
-        var status = document.createElement("p");
-        status.className = "sp-transfer-note";
-        status.setAttribute("role", "status");
-        dialog.appendChild(status);
-        var actions = document.createElement("div");
-        actions.className = "sp-transfer-actions sp-btn-row";
-        var copy = createActionButton("sp-action-btn sp-transfer-copy-btn", "", "content-copy");
-        var copyLabel: any = document.createTextNode("Copy");
-        copy.appendChild(copyLabel);
-        var copyIcon: any = copy.querySelector(".mdi");
-        var copyResetTimer: any;
-        function setCopyButtonState(copied: any) {
-            copy.classList.toggle("sp-copied", copied);
-            copyIcon.className = copied ? "mdi mdi-check" : "mdi mdi-content-copy";
-            copyLabel.textContent = copied ? "Copied" : "Copy";
-        }
-        copy.addEventListener("click", async function () {
-            if (copyResetTimer) {
-                clearTimeout(copyResetTimer);
-                copyResetTimer = null;
+        var copied = false;
+        try {
+            var clipboard = document.defaultView?.navigator.clipboard;
+            if (clipboard) {
+                await clipboard.writeText(code);
+                copied = true;
             }
-            copy.disabled = true;
-            setCopyButtonState(false);
-            status.textContent = "";
-            var copied = false;
+        }
+        catch (_) {
+            // Local HTTP pages and browser permissions may require selection-based copying.
+        }
+        if (!copied) {
+            var previousFocus = document.activeElement as HTMLElement | null;
+            var textarea = document.createElement("textarea");
+            textarea.value = code;
+            textarea.readOnly = true;
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            textarea.style.pointerEvents = "none";
+            document.body.appendChild(textarea);
             try {
-                var clipboard = document.defaultView?.navigator.clipboard;
-                if (clipboard) {
-                    await clipboard.writeText(code);
-                    copied = true;
-                }
+                textarea.focus({ preventScroll: true });
+                textarea.select();
+                copied = document.execCommand("copy");
             }
             catch (_) {
-                // Local HTTP pages and browser permissions may require selection-based copying.
+                // Report blocked copying without claiming the clipboard was updated.
             }
-            if (!copied && dialog.isConnected) {
-                textarea.focus();
-                textarea.select();
-                try {
-                    copied = document.execCommand("copy");
-                }
-                catch (_) {
-                    // Leave the code selected for manual copying.
-                }
+            finally {
+                textarea.remove();
+                previousFocus?.focus({ preventScroll: true });
             }
-            status.textContent = copied
-                ? ""
-                : "Could not copy automatically. Copy the selected code manually.";
-            copy.disabled = false;
-            if (copied && dialog.isConnected) {
-                setCopyButtonState(true);
-                copyResetTimer = setTimeout(function () {
-                    copyResetTimer = null;
-                    if (dialog.isConnected)
-                        setCopyButtonState(false);
-                }, 2000);
-                copy.focus();
-            }
-        });
-        actions.appendChild(copy);
-        dialog.appendChild(actions);
-        textarea.focus();
-        textarea.select();
+        }
+        showBanner(copied ? "Card code copied to clipboard." : "Could not copy card code. Check your browser clipboard permissions and try again.",
+            copied ? "success" : "error");
     }
     function showPasteCardCode(pos: any, targetIsSubpage: any) {
         var dialog: any = createCardTransferDialog("Paste Code");

@@ -202,15 +202,50 @@ def check_build(dist):
             errors.append('FAQ structured answers differ from the rendered questions or answers')
 
     redirects = {
+        'immich/installation': BASE + 'immich/#installation',
+        'immich/display-setup': BASE + 'immich/#connect-to-espcontrol',
+        'immich/using-your-frame': BASE + 'immich/#using-your-frame',
+        'immich/settings-reference': BASE + 'immich/#settings-reference',
+        'immich/entities': BASE + 'immich/#home-assistant-entities',
+        'immich/add-on': BASE + 'immich/#browser-api-add-on',
+        'getting-started/c6-recovery': BASE + 'getting-started/troubleshooting#a-p4-panel-has-unreliable-wifi',
+        'features/backlight': BASE + 'settings/display#backlight',
+        'features/rotation': BASE + 'settings/display#rotation',
+        'features/language': BASE + 'settings/system#language',
+        'features/clock': BASE + 'settings/system#time',
+        'features/temperature': BASE + 'settings/system#temperature',
+        'features/device-name': BASE + 'settings/system#device-name',
+        'features/backup': BASE + 'settings/system#backup',
+        'features/firmware-updates': BASE + 'settings/system#firmware',
+        'features/home-assistant': BASE + 'settings/system#home-assistant-settings',
+        'features/battery': BASE + 'settings/system#battery',
+        'features/restart': BASE + 'settings/system#restart',
+        'features/media-cover-art': BASE + 'settings/sleep#cover-art-screen-saver',
+        'features/screensaver': BASE + 'settings/sleep#screensaver',
+        'features/screen-schedule': BASE + 'settings/sleep#night-schedule',
+        'settings/screen': BASE + 'features/appearance',
+        'settings/preferences': BASE + 'settings/system#preferences',
+        'settings/maintenance': BASE + 'settings/system#system',
+        'settings/layout': BASE + 'features/setup#set-up-your-first-controls',
+        'settings/active-colour': BASE + 'features/appearance#active-colour',
+        'settings/card-style': BASE + 'features/appearance#card-style',
+        'settings/theme': BASE + 'features/appearance#theme',
+        'features/idle': BASE + 'features/appearance#idle',
+        'features/clock-bar': BASE + 'features/appearance#clock-bar',
+        'reference/card-capabilities': BASE + 'card-types/',
+        'reference/language-support': BASE + 'settings/system#language',
+        'reference/icons': BASE + 'features/setup#set-up-your-first-controls',
         'reference/request-device-support': BASE + 'screens/',
-        'card-types/weather-forecast': BASE + 'card-types/weather#temperatures-tomorrow',
-        'generated/cards/capabilities': BASE + 'reference/card-capabilities',
-        'generated/cards/runtime-coverage': 'https://github.com/infamy/basalt/blob/main/dev-docs/generated/card-runtime-coverage.md',
+        'card-types/weather-forecast': BASE + 'card-types/weather#setting-up-a-weather-card',
+        'generated/cards/capabilities': BASE + 'card-types/',
+        'generated/cards/runtime-coverage': BASE + 'card-types/',
     }
     screen_guides = {
         '4848s040': ('4848s040#card-grid', '4848s040'),
         'jc1060p470': ('jc1060p470#card-grid', 'jc1060p470-v1'),
         'jc1060p470-v2': ('jc1060p470#card-grid', 'jc1060p470-v2'),
+        'jc1060p470-v3': ('jc1060p470#card-grid', 'jc1060p470-v3'),
+        'jc4880p443-v3': ('jc4880p443#card-grid', 'jc4880p443-v3'),
         'jc4880p443': ('jc4880p443#card-grid', 'jc4880p443'),
         'jc8012p4a1': ('jc8012p4a1', 'jc8012p4a1-v1'),
         'jc8012p4a1-v2': ('jc8012p4a1', 'jc8012p4a1-v2'),
@@ -220,7 +255,7 @@ def check_build(dist):
     for model, (grid, install) in screen_guides.items():
         redirects[f'generated/screens/{model}-grid'] = BASE + 'screens/' + grid
         redirects[f'generated/screens/{model}-install'] = BASE + 'screens/' + install + '#install'
-    baseline = json.loads((ROOT / 'dev-docs/hosting/seo-baseline-2026-09-22.json').read_text())
+    baseline = json.loads((ROOT / 'scripts/fixtures/docs_seo_baseline_2026_09_22.json').read_text())
     for url in baseline['generated_urls']:
         if url.removeprefix(BASE) not in redirects:
             errors.append(f'Previously published generated page has no redirect: {url}')

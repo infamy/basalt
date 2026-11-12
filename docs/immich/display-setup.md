@@ -11,11 +11,11 @@ Use the **EspControl Immich Companion** HACS integration to turn your Immich lib
 
 - [Install the companion](/immich/installation) and create a frame. Use the HACS integration for this setup; the optional add-on alone does not create Home Assistant entities.
 - Confirm the frame's **Image** entity shows a photo in Home Assistant. On the frame's device page, open the entity and copy its actual `image.*` entity ID.
-- Connect your Basalt panel to the same Home Assistant instance. The Camera screensaver supports ESP32-P4 panels and the **4-inch 4848S040 ESP32-S3** panel. Update the [panel firmware](/features/firmware-updates) if its Camera controls are missing.
+- Connect your Basalt panel to the same Home Assistant instance. The Camera screensaver supports ESP32-P4 panels and the **4-inch 4848S040 ESP32-S3** panel. Update the [panel firmware](/settings/maintenance#firmware) if its Camera controls are missing.
 
 ## Match the image to your display
 
-On the companion frame's Home Assistant device page, open **Configuration → Screen shape** and choose the shape that matches the panel's current [rotation](/features/rotation):
+On the companion frame's Home Assistant device page, open **Configuration → Screen shape** and choose the shape that matches the panel's current [rotation](/settings/display#rotation):
 
 | Panel orientation | Companion screen shape | Image output |
 |---|---|---|
@@ -30,22 +30,22 @@ Start with **Photo fit → Show full image** in the companion to keep the whole 
 ## Use the photo screensaver
 
 1. Open the Basalt panel's web setup page.
-2. Go to **Settings → Sleep & Schedule → Screensaver**.
+2. Go to **Screen → Sleep & Schedule → Screensaver**.
 3. Select **Timer** and choose an inactivity delay, or select **Sensor** and enter your Home Assistant presence sensor.
 4. Set **Then → Camera**. This option accepts both cameras and photo image entities.
 5. Enter the companion frame's `image.*` entity ID in **Camera Entity**.
-6. Under **Expanded Image**, choose **Show full image** (Fit) to preserve the complete companion image, or **Crop to fit** (Fill) to crop it to the panel. This is a second sizing step after the companion's own Photo fit setting.
+6. Under **Expanded Image**, choose **Show full image** (Fit) to keep the complete companion image visible on the full screen, or **Crop to fit** (Fill) to fill the screen by trimming the edges. This is a second sizing step after the companion's own Photo fit setting.
 7. Finish editing the entity field so the setting saves, then let the screensaver activate. Settings save automatically.
 
 The companion's **Slideshow Timer** controls how often the photo changes, while the Basalt screensaver timer controls when the panel starts showing photos. The companion starts with a 30-second slideshow interval. Basalt refreshes the image when Home Assistant reports an update and retains the previous successful image while downloading the next one.
 
-Touch the screen to return to the panel. See [Screensaver](/features/screensaver) for presence wake, brightness, the optional clock overlay and Night Schedule priority.
+Touch the screen to return to the panel. See [Screensaver](/settings/sleep#screensaver) for presence wake, brightness, the optional clock overlay and Night Schedule priority.
 
 ## Add photo details
 
 With **Then → Camera** selected, enable **Display Metadata** and enter one of the companion's `sensor.*` entities in **Photo Metadata Entity**. For example, use the frame's **Date** or **Location** sensor. Copy the actual entity ID from Home Assistant; names depend on your frame.
 
-The panel accepts one metadata sensor. The companion also provides People, Tags, Rating, Camera and Favourite sensors, which you can use in Home Assistant. For paired portraits, these sensors describe the **left photo**. Missing details are hidden on the panel. See [Photo metadata](/features/screensaver#photo-metadata) for positioning and clock-overlay behaviour.
+The panel accepts one metadata sensor. The companion also provides People, Tags, Rating, Camera and Favourite sensors, which you can use in Home Assistant. For paired portraits, these sensors describe the **left photo**. Missing details are hidden on the panel. See [Photo metadata](/settings/sleep#photo-metadata) for positioning and clock-overlay behaviour.
 
 ## Use a Camera card
 

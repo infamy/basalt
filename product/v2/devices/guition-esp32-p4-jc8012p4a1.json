@@ -15,12 +15,17 @@
     "firmware": {
       "package": {
         "extraPackages": {
-          "battery": "!include device/battery.yaml",
-          "speaker_output": "!include ../../common/device/speaker_output_p4.yaml"
+          "battery": "!include device/battery.yaml"
         },
         "substitutions": {
-          "speaker_amplifier_pin": "\"GPIO20\""
+          "button_radius": "11px"
         }
+      }
+    },
+    "web": {
+      "continuousCorners": true,
+      "btn": {
+        "smallTextSize": 1.5625
       }
     }
   },
@@ -30,6 +35,11 @@
         "substitutions": {
           "clock_font_size": "\"160\""
         }
+      }
+    },
+    "web": {
+      "grid": {
+        "gap": 0.78125
       }
     }
   }
